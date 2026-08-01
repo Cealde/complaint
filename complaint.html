@@ -17,8 +17,8 @@
         <span class="logo-text">UniHostel Complaint Portal</span>
       </a>
       <nav class="nav-links">
-        <a href="#" class="nav-link">My Complaints</a>
-        <a href="#" class="nav-link">FAC</a>
+        <a href="mylist.html" class="nav-link">My Complaints</a>
+        <a href="#" class="nav-link">Info</a>
         <a href="#" class="nav-link">About Us</a>
         <a href="#" class="nav-link">Contact Us</a>
       </nav>
@@ -28,7 +28,13 @@
 
   <main>
 
-    <h1 class="title">Complaint Form</h1>
+    <div class="header-container">
+        <button class="back-button" onclick="history.back()">↞</button>
+        <h1 class="title">Complaint Form</h1>
+    </div>
+
+    <hr>
+
     <h1 style="text-align:left" class="title">Select your Complaint Type</h1>
 
     <div class="complaint-list">
@@ -82,27 +88,63 @@
         </button>
         <button class="complaint-button">
           <div class="complaint-image-frame">
+            <img src="assets/complaints/bed-single.svg" alt="bed" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Bed/Mattress Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
             <img src="assets/complaints/boxes.svg" alt="box" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Other</span>
         </button>
     </div>
 
+    <div id="specify-issue-section" style="display: none;">
+        <hr>
+        <h1 style="text-align:left" class="title">Specify Issue</h1>
+        <div class="specify-container complaint-list" id="sub-issue-list">
+        </div>
+    </div>
+
+    <hr>
+
     <div class="text-area-container">
-        <label for="additional" class="title">Specify Your Complain</label><br>
+        <label for="additional" class="title">Information</label><br>
         <textarea id="additional" name="additional" rows="4" cols="50" placeholder="Enter here..."></textarea>
     </div>
-    
-    <div class="text-area-container">
-        <label for="room-number" class="title">Room Number</label>
-        <label for="Name" class="title" style="text-align:left">Name</label>
-        <br>
-        <input type="text" id="room-number" name="room-number" placeholder="Room Number" required>
+
+    <hr>
+
+    <div class="input-row-container">
+        <div class="input-group">
+            <label for="room-number" class="title">Room Number</label>
+            <input type="text" id="room-number" name="room-number" placeholder="Room Number" required>
+        </div>
+        <div class="input-group align-right">
+            <label for="name" class="title">Name</label>
+            <input type="text" id="name" name="name" placeholder="Name" required>
+        </div>
     </div>
+
+    <div class="input-row-container">
+        <div class="input-group">
+            <label for="phone-number" class="title">Mobile Number</label>
+            <input type="mob" id="phone-number" name="phone-number" placeholder="Phone Number" required>
+        </div>
+        <div class="input-group align-right">
+            <label for="name" class="title">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+        </div>
+    </div>
+
+    <hr>
+
+    <input type="submit" class="submit-btn">
 
   </main>
 
-  <script src="script.js"></script>
+  <script src="complaint.js"></script>
 
 </body>
 </html>

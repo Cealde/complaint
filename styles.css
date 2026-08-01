@@ -143,9 +143,12 @@ main {
 }
 
 .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 24px;
   background-color: #096837;
-  width: 14vw;
+  width: 16vw;
   height: 6vh;
   color: #C4FFFA;
   font-size: 2rem;
@@ -164,6 +167,10 @@ main {
   transform: translateY(2px);
   box-shadow: inset 0px -5px 0px rgba(0, 0, 0, 0.3);
   transition: ease-in-out .2s;
+}
+
+btn:hover span {
+  transform: translateY(-20px);
 }
 
 .btn:disabled {
