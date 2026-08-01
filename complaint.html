@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>complaint Complaint Simulator</title>
+  <title>Hostel Complaint</title>
   <link rel="stylesheet" href="topbar.css">
   <link rel="stylesheet" href="complaint.css">
   <link rel="icon" type="image/png" href="assets/logo.png">
@@ -14,7 +14,7 @@
     <div class="nav-container">
       <a href="index.html" class="logo">
         <img src="assets/logo.png" id="logo" alt="complaint Logo">
-        <span class="logo-text">Unicomplaint Complaint Portal</span>
+        <span class="logo-text">UniHostel Complaint Portal</span>
       </a>
       <nav class="nav-links">
         <a href="#" class="nav-link">My Complaints</a>
@@ -28,23 +28,77 @@
 
   <main>
 
-    <h1 class="title">Select your Complaint Type</h1>
+    <h1 class="title">Complaint Form</h1>
+    <h1 style="text-align:left" class="title">Select your Complaint Type</h1>
 
     <div class="complaint-list">
         <button class="complaint-button">
           <div class="complaint-image-frame">
-            <img src="assets/complaints/flavus.png" alt="Flavus" class="complaint-button-image"/>
+            <img src="assets/complaints/droplets.svg" alt="water" class="complaint-button-image"/>
           </div>
-          <span class="complaint-button-text">Flavus complaint</span>
+          <span class="complaint-button-text">Water Issue</span>
         </button>
         <button class="complaint-button">
           <div class="complaint-image-frame">
-            <img src="assets/complaints/daphne.png" alt="daphne" class="complaint-button-image"/>
+            <img src="assets/complaints/plug-zap.svg" alt="electrical" class="complaint-button-image"/>
           </div>
-          <span class="complaint-button-text">Daphne complaint</span>
+          <span class="complaint-button-text">Electrical Appliance Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/zap.svg" alt="electricity" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Electricity Wiring Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/paintbrush-vertical.svg" alt="paint" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Paint Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/mirror-round.svg" alt="mirror" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Missing/Broken Itenerary</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/door-open.svg" alt="door" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Door/Window Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/toilet.svg" alt="toilet" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Bathroom Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/brick-wall.svg" alt="wall" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Structural Issue</span>
+        </button>
+        <button class="complaint-button">
+          <div class="complaint-image-frame">
+            <img src="assets/complaints/boxes.svg" alt="box" class="complaint-button-image"/>
+          </div>
+          <span class="complaint-button-text">Other</span>
         </button>
     </div>
+
+    <div class="text-area-container">
+        <label for="additional" class="title">Specify Your Complain</label><br>
+        <textarea id="additional" name="additional" rows="4" cols="50" placeholder="Enter here..."></textarea>
+    </div>
     
+    <div class="text-area-container">
+        <label for="room-number" class="title">Room Number</label>
+        <label for="Name" class="title" style="text-align:left">Name</label>
+        <br>
+        <input type="text" id="room-number" name="room-number" placeholder="Room Number" required>
+    </div>
 
   </main>
 

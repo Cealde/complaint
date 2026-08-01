@@ -10,7 +10,7 @@ body {
 }
 
 main {
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px 24px;
   text-align: center;
@@ -24,7 +24,7 @@ main {
   margin-top: 20px;
   margin-bottom: 40px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   justify-items: center;
   align-items: center;
@@ -39,8 +39,8 @@ main {
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 20vw;
-  height: 40vh;
+  width: 13vw;
+  height: 13vw;
   text-decoration: none;
   color: inherit;
   
@@ -60,17 +60,43 @@ main {
 }
 
 .complaint-button-image {
-  width: 85%;
-  height: 85%;
+  width: 6vw;
   object-fit: cover;
+  filter: invert(13%) sepia(100%) saturate(1000%) hue-rotate(5deg) brightness(101%) contrast(114%);
 }
 
 .complaint-button-text {
-  font-size: 2rem;
+  font-size: 1.2vw;
   font-weight: 600;
   color: var(--text-secondary);
   margin-top: auto;
   border-top: 1px solid var(--border-color);
   padding-top: 10px;
   width: 100%;
+}
+
+.complaint-button:hover {
+    transform: scale(110%);
+    background-color:#e6d3aa;
+}
+
+.text-area-container {
+    text-align: left;
+
+}
+
+#additional {
+    height: 20vw;
+    width: 100%;
+    font-family: var(--body-font);
+    font-size: 1.7vw;
+    padding: 20px;
+}
+
+#room-number {
+    height: 4vw;
+    width: 50%;
+    font-family: var(--body-font);
+    font-size: 1.7vw;
+    padding: 20px
 }

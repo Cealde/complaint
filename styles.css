@@ -1,4 +1,3 @@
-
 body {
   background-color: var(--bg-color);
   color: var(--text-primary);
@@ -8,13 +7,14 @@ body {
   flex-direction: column;
   justify-content: space-between;
   line-height: 1.6;
-  height: 110vh;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 main {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px 24px;
+  padding: 20px 24px 140px 24px;
   text-align: center;
   flex: 1;
   display: flex;
@@ -25,7 +25,7 @@ main {
   width: 100%;
   margin-top: 20px;
   margin-bottom: 40px;
-  perspective: 1000px
+  perspective: 1000px;
 }
 
 .hostel-buttons-grid {
@@ -65,25 +65,29 @@ main {
 
   box-shadow: 
     inset 0 0 0 8px var(--card-bg), 
-    inset 0 0 0 10px var(--border-color); 
+    inset 0 0 0 10px var(--border-color);
+
+  position: relative;
+  z-index: 1;
 }
 
 .hostel-button:hover {
-  transform: translateY(-3px);
+  position: relative;
+  z-index: 1001;
   transform: translateY(-15px) rotateZ(-3deg) rotateX(3deg) translateZ(10px);
   background-color: #ffeda4;
-  transition: ease-in .2s;
   transition: all .3s ease-out;
   transform-origin: bottom center;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
 }
 
 .hostel-button.selected {
+  position: relative;
+  z-index: 1002;
   border-color: #fdfdfd;
   transform: scale(103%);
   background-color: var(--selected-bg);
 }
-
 
 .hostel-image-frame {
   width: 85%;
@@ -94,6 +98,7 @@ main {
   align-items: center;
   justify-content: center;
   margin-bottom: 15px;
+  pointer-events: none;
 }
 
 .hostel-button-image {
@@ -102,6 +107,7 @@ main {
   object-fit: cover;
   border-radius: 30%;
   border: 2px solid var(--text-secondary);
+  pointer-events: none;
 }
 
 .hostel-button-text {
@@ -112,42 +118,46 @@ main {
   border-top: 1px solid var(--border-color);
   padding-top: 10px;
   width: 100%;
+  pointer-events: none;
 }
 
 .select-button-container {
   text-align: center;
   width: 50%;
   height: 8vh;
-  position:fixed;
+  position: fixed;
   bottom: 0px;
-  align-self:center;
+  left: 50%;
+  transform: translateX(-50%);
 
-  background-color:#dfdfdf28;
-  backdrop-filter:blur(10px) saturate(120%);
+  background-color: #dfdfdf28;
+  backdrop-filter: blur(10px) saturate(120%);
   border: 1px solid rgba(255, 255, 255, 0.379);
   
   align-items: center;
   justify-content: center;
   display: flex;
   border-radius: 20px;
+  pointer-events: none;
+  z-index: 100;
 }
 
 .btn {
   padding: 12px 24px;
-  background-color: #096837 ;
+  background-color: #096837;
   width: 14vw;
   height: 6vh;
   color: #C4FFFA;
   font-size: 2rem;
   font-family: var(--body-font);
-  font-weight:500;
   font-weight: 600;
   border-radius: 20px;
   text-decoration: none;
   transition: ease-in-out .2s;
   box-shadow: inset 0px -10px 0px rgba(0, 0, 0, 0.3);
   border: 1px solid black;
-  cursor:pointer;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .btn:hover {
