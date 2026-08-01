@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&family=Staatliches&display=swap');
+
+:root {
+  --bg-color: #050a10;
+  --sc-color: #111827;
+  --card-bg: #D7B279;
+  --selected-bg: #fff29a;
+  --text-secondary: #430000;
+  --text-primary: #dfac60;
+  --border-color: #462e00;
+  --title-font: 'Staatliches';
+  --body-font: 'Chivo';
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  font-family: var(--title-font);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--sc-color);
+  backdrop-filter: blur(10px);
+}
+
+.nav-container {
+  width: 100%;
+  padding: 16px 8vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+#logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.logo-text {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 2rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  position: relative;
+  padding: 0 15px 5px;
+}
+
+.nav-link:not(:first-child) {
+  border-left: 1px solid var(--border-color);
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15px;
+  right: 15px;
+  height: 2px;
+  background-color: var(--text-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}

@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3000;
+let port = 3000;
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -40,6 +40,17 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
-});
+function startServer(p) {
+  server.listen(p, () => {
+    console.log(`Server is running at http://localhost:${p}`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`Port ${p} in use, trying ${p + 1}...`);
+      startServer(p + 1);
+    } else {
+      console.error(err);
+    }
+  });
+}
+
+startServer(port);

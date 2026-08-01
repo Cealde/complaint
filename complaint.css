@@ -1,0 +1,76 @@
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--body-font);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  line-height: 1.6;
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.complaint-list {
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  justify-items: center;
+  align-items: center;
+  justify-content: center;
+}
+
+.complaint-button {
+  background-color: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 20vw;
+  height: 40vh;
+  text-decoration: none;
+  color: inherit;
+  
+  font-family: var(--body-font);
+  
+  padding: 30px; 
+  box-sizing: border-box;
+
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+
+  background-clip: padding-box; 
+
+  box-shadow: 
+    inset 0 0 0 8px var(--card-bg), 
+    inset 0 0 0 10px var(--border-color); 
+}
+
+.complaint-button-image {
+  width: 85%;
+  height: 85%;
+  object-fit: cover;
+}
+
+.complaint-button-text {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+  width: 100%;
+}

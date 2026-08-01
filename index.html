@@ -5,33 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hostel Complaint Simulator</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="topbar.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 <body>
 
   <header>
     <div class="nav-container">
-      <a href="index.html" class="logo"><img src="assets/logo.png"></a>
+      <a href="index.html" class="logo">
+        <img src="assets/logo.png" id="logo" alt="Hostel Logo">
+        <span class="logo-text">UniHostel Complaint Portal</span>
+      </a>
       <nav class="nav-links">
-        <a href="#" class="nav-link">Home</a>
-        <a href="#" class="nav-link">About</a>
-        <a href="#" class="nav-link">Contact</a>
+        <a href="#" class="nav-link">My Complaints</a>
+        <a href="#" class="nav-link">FAC</a>
+        <a href="#" class="nav-link">About Us</a>
+        <a href="#" class="nav-link">Contact Us</a>
       </nav>
     </div>
   </header>
 
 
   <main>
-    <h1 class="title">Welcome to My Project</h1>
-    <p class="subtitle">
-      A simple, clean website built with HTML and external CSS.
-    </p>
-    <a href="#" class="btn">Get Started</a>
+    <h1 class="title">Select your Hostel</h1>
+
+    <div class="hostel-container">
+        <div class="hostel-buttons-grid">
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/flavus.png" alt="Flavus" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Flavus Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/daphne.png" alt="daphne" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Daphne Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/hecate.png" alt="hecate" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Hecate Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/lares.png" alt="lares" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Lares Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/oreads.png" alt="oreads" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Oreads Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/medea.png" alt="medea" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Medea Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/istra.png" alt="istra" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Istra Hostel</span>
+        </button>
+        <button class="hostel-button">
+          <div class="hostel-image-frame">
+            <img src="assets/hostels/creon.png" alt="creon" class="hostel-button-image" />
+          </div>
+          <span class="hostel-button-text">Creon Hostel</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="select-button-container" id="select-button-container">
+      <button class="btn" id="select-hostel-button" onClick="goToComplain('as')" disabled>Select Hostel</button>
+    </div>
+
+
   </main>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2026 My App. All rights reserved.</p>
-  </footer>
+  <script src="script.js"></script>
 
 </body>
 </html>
