@@ -1,4 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const typeButtons = document.querySelectorAll('.type-btn');
+    let selectedTypeButton = typeButtons[2];
+
+    typeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (selectedTypeButton) {
+                selectedTypeButton.classList.remove('selected');
+            }
+
+            btn.classList.add('selected');
+            selectedTypeButton = btn;
+        });
+    });
+
+
     const complaintButtons = document.querySelectorAll('.complaint-button');
     const selectedButtons = [];
     const selectedSubIssueKeys = [];
@@ -9,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { text: "Low Water Pressure", icon: "waves-arrow-down.svg" },
             { text: "Leaking Tap/Pipe", icon: "soap-dispenser-droplet.svg" },
             { text: "Dirty/Muddy Water", icon: "zodiac-aquarius.svg" },
-            { text: "Hot Water Issue", icon: "waves-horizontal.svg" },
+            { text: "Water Flooding", icon: "waves-horizontal.svg" },
         ],
         "Electrical Appliance Issue": [
             { text: "Fan Malfunction", icon: "fan.svg" },
@@ -21,7 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
         "Electricity Wiring Issue": [
             { text: "Power Socket Malfunction", icon: "plug-2.svg" },
             { text: "Sparks/Wiring Burning", icon: "sparkle.svg" },
-            { text: "Frequent Tripping", icon: "zap-off.svg" },
+            { text: "Frequent Tripping", icon: "lightbulb-off.svg" },
+            { text: "Room Outage", icon: "zap-off.svg" },
         ],
         "Paint Issue": [
             { text: "Peeling Paint", icon: "swatch-book.svg" },
@@ -37,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         "Door/Window Issue": [
             { text: "Jammed Door Lock", icon: "door-closed-locked.svg" },
             { text: "Broken Window Glass", icon: "panels-top-left.svg" },
-            { text: "Squeaky Door Hinges", icon: "decimals-arrow-left.svg" },
-            { text: "Damaged Mesh", icon: "grid-3x3.svg" },
+            { text: "Jammed Door/Window", icon: "decimals-arrow-left.svg" },
+            { text: "Broken Door", icon: "grid-3x3.svg" },
         ],
         "Bathroom Issue": [
             { text: "Clogged Toilet/Drain", icon: "cloud-hail.svg" },

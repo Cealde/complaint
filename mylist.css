@@ -35,34 +35,6 @@ main {
     margin-bottom: 0;
 }
 
-.back-button {
-    position: absolute;
-    left: 0;
-    width: 7vw;
-    height: 3.5vw;
-    background-color: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--text-secondary);
-    font-family: var(--body-font);
-    font-size: 1.2vw;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.back-button:hover {
-    transform: scale(105%);
-    background-color: #e6d3aa;
-}
-
-.back-button:active {
-    transform: scale(0.95) !important;
-}
-
 .table-container {
     width: 100%;
     overflow-x: auto;

@@ -72,31 +72,6 @@ main {
     inset 0 0 0 10px var(--border-color); 
 }
 
-.back-button {
-    position: absolute;
-    background-color:rgba(0, 0, 0, 0);
-    border: 0px;
-    left: 0;
-    width: 7vw;
-    height: 3.5vw;
-    color: var(--text-secondary);
-    font-size: 4vw;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.back-button:hover {
-    transform: scale(105%) translateX(-10px);
-}
-
-.back-button:active {
-    transform: scale(0.95) !important;
-}
-
 .complaint-button-image {
   width: 6vw;
   object-fit: cover;
@@ -175,6 +150,7 @@ main {
     width: 100%;
     margin-top: 20px;
     margin-bottom: 20px;
+    align-self: center;
 }
 
 .input-group {
@@ -230,6 +206,83 @@ main {
   box-shadow: inset 0px -5px 0px rgba(0, 0, 0, 0.2);
   transform: none;
   pointer-events: none;
+}
+
+.type-btn {
+  padding: 12px 24px;
+  width: 18vw;
+  height: 4.5vw;
+  font-size: 2rem;
+  font-family: var(--body-font);
+  font-weight: 600;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: ease-in-out .2s;
+  cursor: pointer;
+  pointer-events: auto;
+  align-self: center;
+  margin-top: 20px;
+
+  align-items:center;
+  justify-content:center;
+  display: flex;
+}
+
+.type-btn[class*=" "]:not(.selected) {
+  background-color: #8f8f8f;
+  color: #01020c;
+  border: 3px solid rgb(206, 206, 206);
+}
+
+.type-btn[class*=" "]:not(.selected):hover {
+  background-color:#d3d3d3;
+} 
+
+.type-btn:hover {
+    transform: scale(110%);
+    background-color:#ffe3a7;
+}
+
+.type-btn:active {
+    transform: scale(0.97) !important;
+    transition: transform 0.2s ease;
+}
+
+.type-btn.selected {
+    transform: scale(108%);
+    background-color: var(--selected-bg);
+    border-color: #ffefad;
+}
+
+.type-btn.selected:hover {
+    transform: scale(112%);
+}
+.type-btn.emergency {
+  background-color: #672f26;
+  color: #ff6e6e;
+  border: 5px solid rgb(234, 8, 8);
+}
+
+.type-btn.standard {
+  background-color: #6cf060;
+  color: #004a0f;
+  border: 3px solid rgb(0, 65, 29);
+}
+
+.type-btn.priority {
+  background-color: #f5b731;
+  color: #8c5901;
+  border: 2px solid rgb(155, 86, 7);
+}
+
+.type-btn:hover {
+  transform: translateY(-4px);
+}
+
+.fine-text {
+  width: 18vw;
+  margin-top: -30px;
+  font-size: 0.9vw;
 }
 
 hr {
