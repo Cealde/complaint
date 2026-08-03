@@ -49,7 +49,7 @@ main {
   cursor: pointer;
   transition: all 0.2s ease;
   width: 20vw;
-  height: 40vh;
+  height: 21vw;
   text-decoration: none;
   color: inherit;
   
@@ -124,7 +124,7 @@ main {
 .select-button-container {
   text-align: center;
   width: 50%;
-  height: 8vh;
+  height: 6vw;
   position: fixed;
   bottom: 0px;
   left: 50%;
@@ -149,7 +149,7 @@ main {
   padding: 12px 24px;
   background-color: #096837;
   width: 16vw;
-  height: 6vh;
+  height: 5vw;
   color: #C4FFFA;
   font-size: 2rem;
   font-family: var(--body-font);
