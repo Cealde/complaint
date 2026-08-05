@@ -30,69 +30,71 @@
 
     <div class="header-container">
         <button class="back-button" onclick="history.back()">↞</button>
-        <h1 class="title">Complaint Form</h1>
+        <h1 class="title" id="ctitle">Complaint Form</h1>
     </div>
+
+    <form id="complaintForm">
 
     <hr>
 
     <h1 style="text-align:left" class="title">Select your Complaint Type</h1>
 
     <div class="complaint-list">
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/droplets.svg" alt="water" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Water Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/plug-zap.svg" alt="electrical" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Electrical Appliance Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/zap.svg" alt="electricity" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Electricity Wiring Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/paintbrush-vertical.svg" alt="paint" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Paint Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/mirror-round.svg" alt="mirror" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Missing/Broken Itenerary</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/door-open.svg" alt="door" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Door/Window Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/toilet.svg" alt="toilet" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Bathroom Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/brick-wall.svg" alt="wall" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Structural Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/bed-single.svg" alt="bed" class="complaint-button-image"/>
           </div>
           <span class="complaint-button-text">Bed/Mattress Issue</span>
         </button>
-        <button class="complaint-button">
+        <button class="complaint-button" type="button">
           <div class="complaint-image-frame">
             <img src="assets/complaints/boxes.svg" alt="box" class="complaint-button-image"/>
           </div>
@@ -143,9 +145,9 @@
     <h1 style="text-align:left" class="title">Complaint Severity</h1>
 
     <div class="input-row-container" style="width:80%; margin-top: -20px;">
-        <button class="type-btn emergency">Emergency</button>
-        <button class="type-btn priority">Priority</button>
-        <button class="type-btn standard selected">Standard</button>
+        <button class="type-btn emergency" type="button">Emergency</button>
+        <button class="type-btn priority" type="button">Priority</button>
+        <button class="type-btn standard selected" type="button">Standard</button>
     </div>
     <div class="input-row-container" style="width:80%">
         <span class="fine-text" style="color:#ff382a">Recieved and Serviced <b>immediately</b>, only use if the issue makes the room unstayable.</span>
@@ -157,6 +159,7 @@
     <hr>
 
     <input type="submit" class="submit-btn">
+    </form>
 
   </main>
 

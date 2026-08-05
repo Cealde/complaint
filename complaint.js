@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { text: "Clogged Toilet/Drain", icon: "cloud-hail.svg" },
             { text: "Broken Toilet Seat/Bowl", icon: "workflow.svg" },
             { text: "Broken Jet Spray", icon: "spray-can.svg" },
-            { text: "Damaged Basin Mirror", icon: "mirror-rectangular.svg" },
+            { text: "Damaged Basin", icon: "mirror-rectangular.svg" },
             { text: "Broken/Weak Flush", icon: "towel-rack.svg" },
         ],
         "Structural Issue": [
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Bed/Mattress Issue": [
             { text: "Broken/Dirty Bed Frame", icon: "bed-double.svg" },
             { text: "Torn/Dirty Mattress", icon: "tornado.svg" },
-            { text: "Squeaky Matterss", icon: "audio-waveform.svg" },
+            { text: "Damaged Mattress", icon: "audio-waveform.svg" },
         ],
         "Other": [
             { text: "Noise Disturbance", icon: "volume-2.svg" },
@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Create button
                 const btn = document.createElement('button');
+                btn.type = 'button';
                 btn.className = 'complaint-button';
                 btn.classList.add('sub');
                 if (selectedSubIssueKeys.includes(key)) {
@@ -153,4 +154,43 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSubIssues();
         });
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const hostelName = params.get('hostel') || params.get('h') || '';
+
+    const ctitle = document.getElementById('ctitle');
+    if (ctitle && hostelName) {
+        ctitle.textContent = hostelName[0].toUpperCase() + hostelName.slice(1) + " Hostel Complaint Form";
+    }
+
+    const complaintForm = document.getElementById('complaintForm');
+    if (complaintForm) {
+        complaintForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (selectedButtons.length === 0) {
+                alert("Please select at least one complaint type.");
+                return;
+            }
+
+            const roomNumber = document.getElementById('room-number').value.trim();
+            const studentName = document.getElementById('name').value.trim();
+            const additionalInfo = document.getElementById('additional').value.trim();
+
+            const categories = selectedButtons.map(btn => btn.querySelector('.complaint-button-text').textContent.trim());
+            const subIssues = selectedSubIssueKeys.map(key => key.split(':')[1]);
+            const priority = selectedTypeButton ? selectedTypeButton.textContent.trim() : 'Standard';
+
+            const redirectUrl = new URL('done.html', window.location.href);
+            redirectUrl.searchParams.set('hostel', hostelName || 'Unknown');
+            redirectUrl.searchParams.set('room', roomNumber);
+            redirectUrl.searchParams.set('name', studentName);
+            if (categories.length > 0) redirectUrl.searchParams.set('type', categories.join(', '));
+            if (subIssues.length > 0) redirectUrl.searchParams.set('sub', subIssues.join(', '));
+            if (additionalInfo) redirectUrl.searchParams.set('info', additionalInfo);
+            redirectUrl.searchParams.set('priority', priority);
+
+            window.location.href = redirectUrl.toString();
+        });
+    }
 });

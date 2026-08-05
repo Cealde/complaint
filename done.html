@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaint Sent - UniHostel Portal</title>
+  <link rel="stylesheet" href="topbar.css">
+  <link rel="stylesheet" href="done.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/logo.png" id="logo" alt="Hostel Logo">
+        <span class="logo-text">UniHostel Complaint Portal</span>
+      </a>
+      <nav class="nav-links">
+        <a href="mylist.html" class="nav-link">My Complaints</a>
+        <a href="info.html" class="nav-link">Info</a>
+        <a href="about.html" class="nav-link">About Us</a>
+        <a href="contact.html" class="nav-link">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="success-box">
+        <img src="assets/complaints/circle-check-big.svg" class="success-icon">
+        <h1 class="success-title">Complaint Sent</h1>
+        <p class="success-subtitle">Your complaint has been successfully recorded.</p>
+        <hr>
+
+        <div class="receipt-details">
+            <div class="receipt-row">
+                <span class="receipt-label">Hostel:</span>
+                <span class="receipt-value" id="res-hostel">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Room Number:</span>
+                <span class="receipt-value" id="res-room">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Student Name:</span>
+                <span class="receipt-value" id="res-name">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Complaint Type:</span>
+                <span class="receipt-value" id="res-type">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Specific Complaints:</span>
+                <span class="receipt-value" id="res-spec">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Severity:</span>
+                <span class="receipt-value" id="res-priority">-</span>
+            </div>
+            <div class="receipt-row" id="info-row" style="display: none;">
+                <span class="receipt-label">Additional Info:</span>
+                <span class="receipt-value" id="res-info">-</span>
+            </div>
+        </div>
+
+        <button class="home-btn" onclick="location.href='index.html'">Go to Home</button>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        
+        const hostel = params.get('hostel') || 'Unknown Hostel';
+        const room = params.get('room') || '-';
+        const name = params.get('name') || '-';
+        const type = params.get('type') || '-';
+        const sub = params.get('sub') || 'None';
+        const info = params.get('info') || '';
+        const priority = params.get('priority') || 'Standard';
+
+        // Format hostel display
+        document.getElementById('res-hostel').textContent = hostel;
+        document.getElementById('res-room').textContent = room;
+        document.getElementById('res-name').textContent = name;
+        document.getElementById('res-type').textContent = type;
+        document.getElementById('res-spec').textContent = sub;
+        
+        const priorityEl = document.getElementById('res-priority');
+        priorityEl.textContent = priority;
+        
+        // Style priority badge
+        if (priority.toLowerCase() === 'emergency') {
+            priorityEl.className = 'receipt-value status-badge emergency';
+        } else if (priority.toLowerCase() === 'priority') {
+            priorityEl.className = 'receipt-value status-badge priority';
+        } else {
+            priorityEl.className = 'receipt-value status-badge standard';
+        }
+
+        if (info) {
+            document.getElementById('info-row').style.display = 'flex';
+            document.getElementById('res-info').textContent = info;
+        }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHostel Complaint Portal</title>
+  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="topbar.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/logo.png" id="logo" alt="Hostel Logo">
+        <span class="logo-text">UniHostel Complaint Portal</span>
+      </a>
+    </div>
+  </header>
+
+
+  <main>
+    <div class="login-box">
+        <h1 class="title" style="color:var(--text-secondary)">Login</h1>
+        <hr>
+        
+        <form class="login-form" action="index.html" method="GET">
+            <div class="input-group">
+                <label for="roll" class="input-label">College ID</label>
+                <input type="text" id="roll" name="roll" placeholder="COLLEGE ID" required class="input-box">
+            </div>
+
+            <div class="input-group">
+                <label for="password" class="input-label">Password</label>
+                <input type="password" id="password" name="password" placeholder="PASSWORD" required class="input-box">
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+    </div>
+
+
+
+  </main>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
