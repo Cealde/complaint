@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const key = `${categoryName}:${subIssue.text}`;
                 validKeys.push(key);
 
-                // Create button
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'complaint-button';
@@ -160,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ctitle = document.getElementById('ctitle');
     if (ctitle && hostelName) {
-        ctitle.textContent = hostelName[0].toUpperCase() + hostelName.slice(1) + " Hostel Complaint Form";
+        ctitle.textContent = hostelName[0].toUpperCase() + hostelName.slice(1) + " Complaint Form";
     }
 
     const complaintForm = document.getElementById('complaintForm');
