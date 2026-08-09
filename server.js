@@ -1,9 +1,23 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { handleLogin } = require('./app/api/login/route');
 
 let port = 3000;
 
+const envPath = path.join(__dirname, '.env.local');
+if (fs.existsSync(envPath)) {
+  const envFile = fs.readFileSync(envPath, 'utf-8');
+  envFile.split('\n').forEach(line => {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+    if (match) {
+      const key = match[1];
+      let value = match[2] || '';
+      if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+      process.env[key] = value.trim();
+    }
+  });
+}
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -16,6 +30,11 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
   let reqUrl = req.url.split('?')[0];
+
+  if (req.method === 'POST' && reqUrl === '/api/login') {
+    handleLogin(req, res);
+    return;
+  }
 
   if (reqUrl === '/') reqUrl = '/index.html';
 

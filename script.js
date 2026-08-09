@@ -31,4 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         goToComplain();
      });
+
+     const username = sessionStorage.getItem('username');
+     const welcomeText = document.getElementById('name-title');
+
+     if(username && welcomeText) {
+        welcomeText.textContent = `Welcome, ${username}.`;
+     }
+
 });

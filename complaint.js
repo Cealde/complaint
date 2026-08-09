@@ -13,6 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const nameField = document.getElementById('name');
+    const emailField = document.getElementById('email');
+    const phoneField = document.getElementById('phone-number');
+
+
+    nameField.value = sessionStorage.getItem('username');
+    emailField.value = sessionStorage.getItem('email');
+    phoneField.value = sessionStorage.getItem('phone');
+
+
+
 
     const complaintButtons = document.querySelectorAll('.complaint-button');
     const selectedButtons = [];
