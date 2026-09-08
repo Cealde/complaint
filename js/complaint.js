@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 btn.innerHTML = `
                     <div class="complaint-image-frame">
-                        <img src="assets/complaints/sub/${subIssue.icon}" alt="${subIssue.text}" class="complaint-button-image sub"/>
+                        <img src="../assets/complaints/sub/${subIssue.icon}" alt="${subIssue.text}" class="complaint-button-image sub"/>
                     </div>
                     <span class="complaint-button-text sub">${subIssue.text}</span>
                 `;

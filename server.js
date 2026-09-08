@@ -2,7 +2,6 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { handleLogin } = require('./app/api/login/route');
-
 const { handleComplaint } = require('./app/api/complaint/route');
 
 let port = 3000;
@@ -20,6 +19,7 @@ if (fs.existsSync(envPath)) {
     }
   });
 }
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -30,9 +30,41 @@ const MIME_TYPES = {
   '.svg': 'image/svg+xml'
 };
 
+function resolveFilePath(reqUrl) {
+  if (reqUrl === '/' || reqUrl === '') reqUrl = '/html/index.html';
+
+  const cleanUrl = reqUrl.startsWith('/') ? reqUrl.slice(1) : reqUrl;
+
+  // 1. Direct path check
+  const directPath = path.join(__dirname, cleanUrl);
+  if (directPath.startsWith(__dirname) && fs.existsSync(directPath) && fs.statSync(directPath).isFile()) {
+    return directPath;
+  }
+
+  // 2. Folder fallbacks (html/, css/, js/)
+  if (cleanUrl.endsWith('.html') || !path.extname(cleanUrl)) {
+    const filename = cleanUrl.endsWith('.html') ? cleanUrl.replace(/^html\//, '') : `${cleanUrl}.html`;
+    const htmlPath = path.join(__dirname, 'html', filename);
+    if (fs.existsSync(htmlPath) && fs.statSync(htmlPath).isFile()) return htmlPath;
+  }
+
+  if (cleanUrl.endsWith('.css')) {
+    const cssPath = path.join(__dirname, 'css', cleanUrl.replace(/^css\//, ''));
+    if (fs.existsSync(cssPath) && fs.statSync(cssPath).isFile()) return cssPath;
+  }
+
+  if (cleanUrl.endsWith('.js')) {
+    const jsPath = path.join(__dirname, 'js', cleanUrl.replace(/^js\//, ''));
+    if (fs.existsSync(jsPath) && fs.statSync(jsPath).isFile()) return jsPath;
+  }
+
+  return null;
+}
+
 const server = http.createServer((req, res) => {
   let reqUrl = req.url.split('?')[0];
 
+  // API Endpoints
   if (req.method === 'POST' && reqUrl === '/api/login') {
     handleLogin(req, res);
     return;
@@ -41,27 +73,18 @@ const server = http.createServer((req, res) => {
     return;
   } 
 
-  if (reqUrl === '/') reqUrl = '/index.html';
+  const resolvedFile = resolveFilePath(reqUrl);
 
-  const filePath = path.join(__dirname, reqUrl);
-
-  if (!filePath.startsWith(__dirname)) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
-    return res.end('Forbidden');
+  if (!resolvedFile) {
+    res.writeHead(404, { 'Content-Type': 'text/html' });
+    return res.end('<h1>404 - Not Found</h1>');
   }
 
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      return res.end('<h1>404 - Not Found</h1>');
-    }
+  const ext = path.extname(resolvedFile).toLowerCase();
+  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-
-    res.writeHead(200, { 'Content-Type': contentType });
-    fs.createReadStream(filePath).pipe(res);
-  });
+  res.writeHead(200, { 'Content-Type': contentType });
+  fs.createReadStream(resolvedFile).pipe(res);
 });
 
 function startServer(p) {
