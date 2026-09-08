@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const validKeys = [];
-        subIssueList.innerHTML = '';
+        subIssueList.innerHTML = '';    
 
         selectedButtons.forEach(catBtn => {
             const categoryName = catBtn.querySelector('.complaint-button-text').textContent.trim();
@@ -184,23 +184,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const roomNumber = document.getElementById('room-number').value.trim();
-            const studentName = document.getElementById('name').value.trim();
             const additionalInfo = document.getElementById('additional').value.trim();
 
             const categories = selectedButtons.map(btn => btn.querySelector('.complaint-button-text').textContent.trim());
             const subIssues = selectedSubIssueKeys.map(key => key.split(':')[1]);
             const priority = selectedTypeButton ? selectedTypeButton.textContent.trim() : 'Standard';
 
-            const redirectUrl = new URL('done.html', window.location.href);
-            redirectUrl.searchParams.set('hostel', hostelName || 'Unknown');
-            redirectUrl.searchParams.set('room', roomNumber);
-            redirectUrl.searchParams.set('name', studentName);
-            if (categories.length > 0) redirectUrl.searchParams.set('type', categories.join(', '));
-            if (subIssues.length > 0) redirectUrl.searchParams.set('sub', subIssues.join(', '));
-            if (additionalInfo) redirectUrl.searchParams.set('info', additionalInfo);
-            redirectUrl.searchParams.set('priority', priority);
 
-            window.location.href = redirectUrl.toString();
+            localStorage.setItem('hostel', hostelName || 'Unknown');
+            localStorage.setItem('room', roomNumber);
+            if(categories.length > 0) localStorage.setItem('type', categories);
+            if(subIssues.length > 0) localStorage.setItem('sub', subIssues);
+            if(additionalInfo) localStorage.setItem('info', additionalInfo);
+            localStorage.setItem('priority',priority);
+
+            window.location.href = 'done.html';
         });
     }
 });

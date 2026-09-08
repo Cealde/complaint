@@ -67,43 +67,7 @@
     </div>
   </main>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
-        
-        const hostel = params.get('hostel') || 'Unknown Hostel';
-        const room = params.get('room') || '-';
-        const name = params.get('name') || '-';
-        const type = params.get('type') || '-';
-        const sub = params.get('sub') || 'None';
-        const info = params.get('info') || '';
-        const priority = params.get('priority') || 'Standard';
-
-        // Format hostel display
-        document.getElementById('res-hostel').textContent = hostel;
-        document.getElementById('res-room').textContent = room;
-        document.getElementById('res-name').textContent = name;
-        document.getElementById('res-type').textContent = type;
-        document.getElementById('res-spec').textContent = sub;
-        
-        const priorityEl = document.getElementById('res-priority');
-        priorityEl.textContent = priority;
-        
-        // Style priority badge
-        if (priority.toLowerCase() === 'emergency') {
-            priorityEl.className = 'receipt-value status-badge emergency';
-        } else if (priority.toLowerCase() === 'priority') {
-            priorityEl.className = 'receipt-value status-badge priority';
-        } else {
-            priorityEl.className = 'receipt-value status-badge standard';
-        }
-
-        if (info) {
-            document.getElementById('info-row').style.display = 'flex';
-            document.getElementById('res-info').textContent = info;
-        }
-    });
-  </script>
+  <script src="done.js"></script>
 
 </body>
 </html>

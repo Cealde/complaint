@@ -33,6 +33,8 @@ loginForm.addEventListener('submit', async (event) => {
       sessionStorage.setItem('email', data.user.email || '');
       sessionStorage.setItem('phone', data.user.phone || '');
 
+      localStorage.setItem('user_roll', data.user.user_roll);
+
       localStorage.setItem('username', displayName);
       localStorage.setItem('email', data.user.email || '');
       localStorage.setItem('phone', data.user.phone || '');

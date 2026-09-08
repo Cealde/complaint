@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { handleLogin } = require('./app/api/login/route');
 
+const { handleComplaint } = require('./app/api/complaint/route');
+
 let port = 3000;
 
 const envPath = path.join(__dirname, '.env.local');
@@ -34,7 +36,10 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST' && reqUrl === '/api/login') {
     handleLogin(req, res);
     return;
-  }
+  } else if (req.method === 'POST' && reqUrl === '/api/complaint') {
+    handleComplaint(req, res);
+    return;
+  } 
 
   if (reqUrl === '/') reqUrl = '/index.html';
 
