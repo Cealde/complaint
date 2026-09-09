@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sub = localStorage.getItem('sub') || '-';
     const info = localStorage.getItem('info') || '';
     const priority = localStorage.getItem('priority') || 'Standard';
-    const user_roll = localStorage.getItem('user_roll') || sessionStorage.getItem('user_roll') || localStorage.getItem('username') || 'Unknown';
+    const user_roll = localStorage.getItem('user_roll') || sessionStorage.getItem('user_roll') || 'Unknown';
 
     document.getElementById('res-hostel').textContent = hostel;
     document.getElementById('res-room').textContent = room;
@@ -35,13 +35,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (priority === "Priority") priorityNum = 1;
     if (priority === "Emergency") priorityNum = 2;
 
+    const timestamp = new Date().toISOString(); 
+
+    const inData = [user_roll, room, hostel, priorityNum, info, type, sub, timestamp]
+
+    inData.forEach((variable, index) => {
+        if (variable === null) {
+            console.log(`Variable at index ${index} is null.`);
+            return;
+        }
+    });
+
     try {
         const response = await fetch('/api/complaint', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ user_roll, room, hostel, priorityNum, info, type, sub })
+            body: JSON.stringify({ user_roll, room, hostel, priorityNum, info, type, sub, timestamp })
         });
 
         const data = await response.json();

@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { handleLogin } = require('./app/api/login/route');
 const { handleComplaint } = require('./app/api/complaint/route');
+const { handleRequest } = require('./app/api/get/route');
 
 let port = 3000;
 
@@ -35,13 +36,10 @@ function resolveFilePath(reqUrl) {
 
   const cleanUrl = reqUrl.startsWith('/') ? reqUrl.slice(1) : reqUrl;
 
-  // 1. Direct path check
   const directPath = path.join(__dirname, cleanUrl);
   if (directPath.startsWith(__dirname) && fs.existsSync(directPath) && fs.statSync(directPath).isFile()) {
     return directPath;
   }
-
-  // 2. Folder fallbacks (html/, css/, js/)
   if (cleanUrl.endsWith('.html') || !path.extname(cleanUrl)) {
     const filename = cleanUrl.endsWith('.html') ? cleanUrl.replace(/^html\//, '') : `${cleanUrl}.html`;
     const htmlPath = path.join(__dirname, 'html', filename);
@@ -64,19 +62,26 @@ function resolveFilePath(reqUrl) {
 const server = http.createServer((req, res) => {
   let reqUrl = req.url.split('?')[0];
 
-  // API Endpoints
   if (req.method === 'POST' && reqUrl === '/api/login') {
     handleLogin(req, res);
     return;
   } else if (req.method === 'POST' && reqUrl === '/api/complaint') {
     handleComplaint(req, res);
     return;
-  } 
+  } else if (req.method === 'POST' && reqUrl === '/api/get') {
+    handleRequest(req, res);
+    return;
+  }
 
   const resolvedFile = resolveFilePath(reqUrl);
 
   if (!resolvedFile) {
-    res.writeHead(404, { 'Content-Type': 'text/html' });
+    const notFoundPath = path.join(__dirname, 'html', '404.html');
+    if (fs.existsSync(notFoundPath)) {
+      res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+      return fs.createReadStream(notFoundPath).pipe(res);
+    }
+    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
     return res.end('<h1>404 - Not Found</h1>');
   }
 

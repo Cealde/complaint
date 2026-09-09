@@ -24,9 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedBtn = document.querySelector('.hostel-button.selected');
             if (selectedBtn) {
                 const hostelName = selectedBtn.querySelector('.hostel-button-text').textContent.trim();
-                window.location.href = `complaint.html?hostel=${encodeURIComponent(hostelName)}`;
-            } else {
-                window.location.href = "complaint.html";
+                window.location.href = `/complaint?hostel=${encodeURIComponent(hostelName)}`;
             }
         }
         goToComplain();

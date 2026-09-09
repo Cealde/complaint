@@ -1,0 +1,59 @@
+
+h1 {
+    font-weight: 800;
+    font-family: var(--body-font);
+}
+
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-image: url('../assets/404bg.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+
+main {
+  margin: 0 auto;
+  text-align: center;
+  border: 1px solid #d1d1d18a;
+  padding: 20px 20px 20px;
+  border-radius: 10px;
+  background-color: rgba(113, 113, 113, 0.137);
+  backdrop-filter: blur(10px) saturate(130%);
+  width: 50vw;
+  box-shadow: -10px 10px 10px rgba(24, 24, 24, 0.575);
+}
+
+.huge-title {
+  font-size: 10rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  font-family: var(--title-font);
+  letter-spacing: 10px;
+  color: #ffc60c;
+  text-shadow: -10px 10px 0 rgb(81, 24, 0);
+}
+
+#btn {
+  border: 1px solid black;
+  width: 20vw;
+  height: 3vw;
+  border-radius: 10px;
+  background-color: #ffd04462;
+  font-family: var(--body-font);
+  backdrop-filter: blur(10px) saturate(130%);
+  transition:cubic-bezier(0.455, 0.03, 0.515, 0.955) .2s;
+}
+
+#btn:hover {
+  scale: 110%;
+  backdrop-filter: blur(10px) saturate(250%);
+  cursor: pointer;
+}

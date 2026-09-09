@@ -18,11 +18,11 @@ async function handleComplaint(req, res) {
   req.on('data', chunk => { body += chunk; });
   req.on('end', async () => {
     try {
-      const { user_roll, room, hostel, priorityNum, info, type, sub } = JSON.parse(body);
+      const { user_roll, room, hostel, priorityNum, info, type, sub, timestamp } = JSON.parse(body);
       
-      if (!user_roll || !room || !hostel || priorityNum === undefined || priorityNum === null) {
+      if (!user_roll || !room || !hostel || priorityNum === undefined || priorityNum === null || !timestamp) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error: "RollNo, Room, Hostel and Priority are required" }));
+        return res.end(JSON.stringify({ error: "Insufficient Credentials"+user_roll+room+hostel+priorityNum }));
       }
 
       const client = getSupabaseClient();
@@ -43,8 +43,9 @@ async function handleComplaint(req, res) {
           hostel, 
           priority: Number(priorityNum), 
           info: info || '', 
-          type: typeArr, 
-          sub: subArr 
+          type: typeArr,
+          sub: subArr,
+          created: timestamp
         }])
         .select();
 

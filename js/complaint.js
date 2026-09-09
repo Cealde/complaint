@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(additionalInfo) localStorage.setItem('info', additionalInfo);
             localStorage.setItem('priority',priority);
 
-            window.location.href = 'done.html';
+            window.location.href = '/done';
         });
     }
 });

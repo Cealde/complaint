@@ -39,7 +39,7 @@ loginForm.addEventListener('submit', async (event) => {
       localStorage.setItem('email', data.user.email || '');
       localStorage.setItem('phone', data.user.phone || '');
 
-      window.location.href="index.html";
+      window.location.href="/";
     }
     
   } catch (error) {

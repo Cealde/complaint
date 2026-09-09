@@ -60,6 +60,7 @@ main {
     color: var(--text-secondary);
     padding: 18px 20px;
     border-bottom: 2px solid var(--border-color);
+    vertical-align: middle;
 }
 
 .complaints-table th:not(:last-child) {
@@ -72,33 +73,28 @@ main {
     color: #e5e7eb;
     border-bottom: 1px solid rgba(70, 46, 0, 0.4);
     background-color: rgba(17, 24, 39, 0.4);
+    vertical-align: middle;
 }
 
 .complaints-table td:not(:last-child) {
     border-right: 1px solid rgba(70, 46, 0, 0.2);
 }
 
-/* Column Width Customizations */
-.col-id {
-    width: 10%;
+.hostel-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    vertical-align: middle;
 }
 
-.col-category {
-    width: 35%;
-    min-width: 220px;
-}
-
-.col-issue {
-    width: 35%;
-    min-width: 260px;
-}
-
-.col-status {
-    width: 12%;
-}
-
-.col-date {
-    width: 8%;
+.hostel-img {
+    width: 50px;
+    height: 50px;
+    border: 1.5px solid var(--text-primary);
+    border-radius: 50%;
+    background-color: var(--selected-bg);
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .complaints-table tr:last-child td {
@@ -124,8 +120,9 @@ main {
     padding: 4px 12px;
     font-size: 0.9rem;
     font-weight: 600;
-    border-radius: 50px;
+    border-radius: 10px;
     text-align: center;
+    white-space: nowrap;
 }
 
 .status-badge.pending {
@@ -144,4 +141,32 @@ main {
     background-color: rgba(16, 185, 129, 0.15);
     color: #34d399;
     border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.severity-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.severity-badge.standard {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.severity-badge.priority {
+    background-color: rgba(185, 148, 16, 0.15);
+    color: #ff9d60;
+    border: 1px solid rgba(255, 153, 151, 0.4);
+}
+
+.severity-badge.emergency {
+    background-color: rgba(205, 0, 0, 0.15);
+    color: #ff1404;
+    border: 1px solid rgba(255, 171, 171, 0.4);
 }

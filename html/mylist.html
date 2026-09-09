@@ -12,23 +12,22 @@
 
   <header>
     <div class="nav-container">
-      <a href="index.html" class="logo">
+      <a href="/" class="logo">
         <img src="../assets/logo.png" id="logo" alt="Hostel Logo">
         <span class="logo-text">UniHostel Complaint Portal</span>
       </a>
       <nav class="nav-links">
-        <a href="mylist.html" class="nav-link">My Complaints</a>
-        <a href="info.html" class="nav-link">Info</a>
-        <a href="about.html" class="nav-link">About Us</a>
-        <a href="contact.html" class="nav-link">Contact Us</a>
+        <a href="/mylist" class="nav-link">My Complaints</a>
+        <a href="/info" class="nav-link">Info</a>
+        <a href="/about" class="nav-link">About Us</a>
+        <a href="/contact" class="nav-link">Contact Us</a>
       </nav>
     </div>
   </header>
 
-
   <main>
     <div class="header-container">
-        <button class="back-button" onclick="location.href='index.html'">↞</button>
+        <button class="back-button" onclick="location.href='/'">↞</button>
         <h1 class="title">My Complaints</h1>
     </div>
 
@@ -37,18 +36,23 @@
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Hostel</th>
+                    <th>Room No</th>
                     <th>Category</th>
                     <th>Specific Issue</th>
                     <th>Status</th>
                     <th>Date</th>
+                    <th>Severity</th>
                 </tr>
             </thead>
+            <tbody id="complaints-body">
+            </tbody>
         </table>
     </div>
 
   </main>
 
-  <script src="../js/script.js"></script>
+  <script src="../js/mylist.js"></script>
 
 </body>
 </html>
