@@ -32,7 +32,7 @@ async function handleLogin(req, res) {
 
       const { data, error } = await client
         .from("users")
-        .select("user_roll, password, name, email, phone")
+        .select("user_roll, password, name, email, phone, is_admin")
         .eq("user_roll", userid)
         .eq("password", password)
         .single();
@@ -43,7 +43,18 @@ async function handleLogin(req, res) {
       }
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ success: true, user: { userid: data.user_roll, user_roll: data.user_roll, name: data.name, email: data.email, phone: data.phone} }));
+      const isAdmin = Boolean(data.is_admin);
+      return res.end(JSON.stringify({
+        success: true,
+        user: {
+          userid: data.user_roll,
+          user_roll: data.user_roll,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          is_admin: isAdmin
+        }
+      }));
 
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' });

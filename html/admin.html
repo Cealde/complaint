@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hostel Complaint Simulator</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/topbar.css">
+  <link rel="icon" type="image/png" href="../assets/logo.png">
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <img src="../assets/logo.png" id="logo" alt="Hostel Logo">
+        <span class="logo-text">UniHostel Complaint Portal</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/mylist" class="nav-link">My Complaints</a>
+        <a href="/info" class="nav-link">Info</a>
+        <a href="/about" class="nav-link">About Us</a>
+        <a href="/contact" class="nav-link">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="header-container" style="display: flex; align-items: center; position: relative; margin-top: 20px;">
+        <button class="back-button" onclick="location.href='/'">↞</button>
+        <h1 class="title" style="margin: 0 auto;">Admin Portal</h1>
+    </div>
+  </main>
+
+  <script>
+    const isAdmin = localStorage.getItem('is_admin') === 'true' || sessionStorage.getItem('is_admin') === 'true';
+    if (!isAdmin) {
+      window.location.href = '/';
+    }
+  </script>
+  <script src="../js/mylist.js"></script>
+
+</body>
+</html>

@@ -28,16 +28,19 @@ loginForm.addEventListener('submit', async (event) => {
       messageContainer.style.color = 'red';
     } else {
       const displayName = data.user.name || data.user.user_roll;
+      const isAdmin = Boolean(data.user && data.user.is_admin);
       
       sessionStorage.setItem('username', displayName);
       sessionStorage.setItem('email', data.user.email || '');
       sessionStorage.setItem('phone', data.user.phone || '');
+      sessionStorage.setItem('user_roll', data.user.user_roll);
+      sessionStorage.setItem('is_admin', isAdmin ? 'true' : 'false');
 
       localStorage.setItem('user_roll', data.user.user_roll);
-
       localStorage.setItem('username', displayName);
       localStorage.setItem('email', data.user.email || '');
       localStorage.setItem('phone', data.user.phone || '');
+      localStorage.setItem('is_admin', isAdmin ? 'true' : 'false');
 
       window.location.href="/";
     }

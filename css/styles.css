@@ -71,6 +71,46 @@ main {
   z-index: 1;
 }
 
+#lgt-container {
+  position: absolute;
+  margin-top: 3vh;
+  margin-left: 3vh;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  z-index: 100;
+}
+
+#lgt-btn,
+.admin-btn {
+  height: 4vh;
+  min-height: 36px;
+  min-width: 6vw;
+  padding: 0 16px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 7px;
+  color: var(--text-secondary);
+  font-family: var(--body-font);
+  font-size: 1vw;
+  font-weight: 800;
+  transition: .2s ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+#lgt-btn:hover,
+.admin-btn:hover {
+  transform: translateY(-2px);
+  background-color: var(--selected-bg);
+  border: 2px solid var(--card-bg);
+}
+
 .hostel-button:hover {
   position: relative;
   z-index: 1001;
