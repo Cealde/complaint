@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  // Admin authentication check
+
   const isAdmin = localStorage.getItem('is_admin') === 'true' || sessionStorage.getItem('is_admin') === 'true';
   if (!isAdmin) {
     window.location.href = '/';
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toastEl = document.getElementById('admin-toast');
 
   let allComplaints = [];
-  let currentTab = 'unresolved'; // 'unresolved' | 'resolved'
+  let currentTab = 'unresolved';
 
   function showToast(message, isSuccess = true) {
     if (!toastEl) return;
@@ -47,8 +47,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   function getSortedComplaints(tab) {
     if (tab === 'unresolved') {
       const list = allComplaints.filter(c => !c.resolved);
-      // Primary sort: Severity (Emergency 2 > Priority 1 > Standard 0)
-      // Secondary sort: Publish time descending (newest first)
       list.sort((a, b) => {
         const pA = Number(a.priority) || 0;
         const pB = Number(b.priority) || 0;
@@ -60,7 +58,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       return list;
     } else {
       const list = allComplaints.filter(c => c.resolved);
-      // Resolved complaints are sorted by publish date only (newest first)
       list.sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
       return list;
     }
@@ -101,7 +98,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const hostelKey = hostelDisplay.split(" ")[0].toLowerCase();
       const roomDisplay = item.room || '-';
 
-      // Parse arrays
       const categories = Array.isArray(item.type) 
         ? item.type 
         : (item.type ? String(item.type).split(',').map(s => s.trim()) : []);
@@ -130,7 +126,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const statusText = item.resolved ? 'Resolved' : 'Pending';
       const statusClass = item.resolved ? 'resolved' : 'pending';
 
-      // Category with overflow toggle if > 2 items
       let categoryHtml = '';
       if (categories.length === 0) {
         categoryHtml = '-';
@@ -148,7 +143,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
       }
 
-      // Specific issue & Additional Info with overflow toggle
       let issuesHtml = '';
       const hasExtraSub = subIssues.length > 2;
       const hasInfo = Boolean(item.info && item.info.trim());
@@ -181,7 +175,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
       }
 
-      // Student info cell
       const studentName = escapeHtml(item.name || 'Unknown');
       const studentRoll = escapeHtml(item.user_roll || '-');
       const studentPhone = escapeHtml(item.phone || '-');
@@ -195,7 +188,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? `<a href="mailto:${escapeHtml(item.email)}">✉ ${studentEmail}</a>` 
         : `<span>✉ ${studentEmail}</span>`;
 
-      // Action cell
       let actionCellHtml = '';
       if (!item.resolved) {
         actionCellHtml = `<button type="button" class="resolve-btn" data-id="${escapeHtml(item.id)}">✓ Resolve</button>`;
@@ -230,7 +222,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td style="text-align: center;">${actionCellHtml}</td>
       `;
 
-      // Attach overflow button handlers
       row.querySelectorAll('.show-more-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const container = btn.closest('.overflow-container');
@@ -253,7 +244,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       });
 
-      // Attach resolve button handler
       const resolveBtn = row.querySelector('.resolve-btn');
       if (resolveBtn) {
         resolveBtn.addEventListener('click', async () => {
@@ -277,7 +267,6 @@ document.addEventListener('DOMContentLoaded', async () => {
               return;
             }
 
-            // Update item in local state
             const targetComplaint = allComplaints.find(c => String(c.id) === String(complaintId));
             if (targetComplaint) {
               targetComplaint.resolved = true;
@@ -299,7 +288,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Switch tab event listeners
   if (tabUnresolved) {
     tabUnresolved.addEventListener('click', () => {
       currentTab = 'unresolved';
@@ -318,7 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Fetch complaints from server
+
   try {
     const res = await fetch('/api/admin', {
       method: 'GET',
