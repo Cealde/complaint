@@ -1,9 +1,14 @@
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { handleLogin } = require('./app/api/login/route');
 const { handleComplaint } = require('./app/api/complaint/route');
 const { handleRequest } = require('./app/api/get/route');
+const { handleAdmin } = require('./app/api/admin/route');
 
 let port = 3000;
 
@@ -70,6 +75,9 @@ const server = http.createServer((req, res) => {
     return;
   } else if (req.method === 'POST' && reqUrl === '/api/get') {
     handleRequest(req, res);
+    return;
+  } else if (reqUrl === '/api/admin' || reqUrl.startsWith('/api/admin/')) {
+    handleAdmin(req, res);
     return;
   }
 

@@ -33,7 +33,7 @@ async function handleRequest(req, res) {
 
       const { data, error } = await client
         .from("complaints")
-        .select("id, room, hostel, type, sub, priority, info, created")
+        .select("id, room, hostel, type, sub, priority, info, created, resolved")
         .eq("user_roll", user_roll)
         .order("created", { ascending: false });
 

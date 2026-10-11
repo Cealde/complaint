@@ -3,42 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hostel Complaint Simulator</title>
-  <link rel="stylesheet" href="../css/admin.css">
+  <title>Admin Portal - UniHostel Complaints</title>
   <link rel="stylesheet" href="../css/topbar.css">
+  <link rel="stylesheet" href="../css/admin.css">
   <link rel="icon" type="image/png" href="../assets/logo.png">
 </head>
 <body>
 
-  <header>
-    <div class="nav-container">
-      <a href="/" class="logo">
-        <img src="../assets/logo.png" id="logo" alt="Hostel Logo">
-        <span class="logo-text">UniHostel Complaint Portal</span>
-      </a>
-      <nav class="nav-links">
-        <a href="/mylist" class="nav-link">My Complaints</a>
-        <a href="/info" class="nav-link">Info</a>
-        <a href="/about" class="nav-link">About Us</a>
-        <a href="/contact" class="nav-link">Contact Us</a>
-      </nav>
+  <!-- Admin Header: Centered Logo + Name with Back Button, No Topbar Links -->
+  <header class="admin-header">
+    <button class="back-button" onclick="location.href='/'" title="Back to Home">↞</button>
+    <div class="admin-header-center">
+      <img src="../assets/logo.png" id="admin-logo" alt="UniHostel Logo">
+      <span class="admin-header-title">UniHostel Complaint Portal</span>
     </div>
   </header>
 
   <main>
-    <div class="header-container" style="display: flex; align-items: center; position: relative; margin-top: 20px;">
-        <button class="back-button" onclick="location.href='/'">↞</button>
-        <h1 class="title" style="margin: 0 auto;">Admin Portal</h1>
+    <div class="admin-top-controls">
+      <div class="admin-title-wrap">
+        <h1 class="admin-title" id="page-title">Admin Management</h1>
+      </div>
+
+      <!-- Switch between Unresolved and Resolved Complaints -->
+      <div class="table-switch-container">
+        <button id="tab-unresolved" class="switch-tab active" type="button">
+          Unresolved <span id="unresolved-count" class="count-badge">0</span>
+        </button>
+        <button id="tab-resolved" class="switch-tab" type="button">
+          Resolved <span id="resolved-count" class="count-badge">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="complaints-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Student Details</th>
+            <th>Hostel</th>
+            <th>Room</th>
+            <th>Category</th>
+            <th>Specific Issue</th>
+            <th>Date</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th id="action-col-header">Action</th>
+          </tr>
+        </thead>
+        <tbody id="admin-complaints-body">
+          <tr>
+            <td colspan="10" style="text-align: center; padding: 40px; color: var(--text-primary);">
+              Loading complaints...
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </main>
 
-  <script>
-    const isAdmin = localStorage.getItem('is_admin') === 'true' || sessionStorage.getItem('is_admin') === 'true';
-    if (!isAdmin) {
-      window.location.href = '/';
-    }
-  </script>
-  <script src="../js/mylist.js"></script>
+  <div id="admin-toast" class="admin-toast"></div>
+
+  <script src="../js/admin.js"></script>
 
 </body>
 </html>
