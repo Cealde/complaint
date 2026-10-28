@@ -222,37 +222,39 @@ erDiagram
 
 ### 5.3 Relational Schema
 
-$$\text{USERS}(\underline{\text{user\_roll}}, \text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin})$$
+```
+USERS(user_roll [PK], password, name, email, phone, is_admin)
 
-$$\text{COMPLAINTS}(\underline{\text{id}}, \text{user\_roll}^*, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved})$$
+COMPLAINTS(id [PK], user_roll [FK], room, hostel, priority, type, sub, info, created, resolved)
+```
 
-*Where underlined attributes indicate Primary Keys ($\text{PK}$) and superscript asterisk ($^*$) indicates Foreign Keys ($\text{FK}$).*
+*Where `[PK]` denotes Primary Key and `[FK]` denotes Foreign Key referencing `USERS(user_roll)`.*
 
 ---
 
 ### 5.4 Functional Dependencies & Normalization Analysis
 
 #### 1. Functional Dependencies (FDs)
-For the relation $\text{USERS}$:
-- $\text{FD}_1: \text{user\_roll} \rightarrow \{\text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
-- $\text{FD}_2: \text{email} \rightarrow \{\text{user\_roll}, \text{name}, \text{phone}\}$ *(Candidate Key)*
+For the relation `USERS`:
+- `FD1: user_roll → {password, name, email, phone, is_admin}`
+- `FD2: email → {user_roll, name, phone}` *(Candidate Key)*
 
-For the relation $\text{COMPLAINTS}$:
-- $\text{FD}_3: \text{id} \rightarrow \{\text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+For the relation `COMPLAINTS`:
+- `FD3: id → {user_roll, room, hostel, priority, type, sub, info, created, resolved}`
 
 #### 2. Normalization Process
 - **First Normal Form (1NF)**:
-  - In a classical atomic 1NF design, multivalued attributes like `type` and `sub` are stored either in child junction tables ($\text{COMPLAINT\_CATEGORIES}$ and $\text{COMPLAINT\_SUBISSUES}$) or utilizing PostgreSQL's native atomic collection type `TEXT[]`. 
+  - In a classical atomic 1NF design, multivalued attributes like `type` and `sub` are stored either in child junction tables (`COMPLAINT_CATEGORIES` and `COMPLAINT_SUBISSUES`) or utilizing PostgreSQL's native atomic collection type `TEXT[]`. 
   - Each tuple in `COMPLAINTS` contains an immutable atomic identifier `id` as primary key. All field values represent single discrete domain values, satisfying 1NF.
 - **Second Normal Form (2NF)**:
   - Both tables have single-attribute primary keys (`user_roll` and `id` respectively).
-  - Since no primary key is composite, **no partial dependency** ($\text{Part of Key} \rightarrow \text{Non-Key}$) can exist. Thus, the database is strictly in 2NF.
+  - Since no primary key is composite, **no partial dependency** (`Part of Key → Non-Key`) can exist. Thus, the database is strictly in 2NF.
 - **Third Normal Form (3NF)**:
-  - A relation is in 3NF if for every functional dependency $X \rightarrow Y$, either $X$ is a superkey or $Y$ is a prime attribute.
-  - In $\text{USERS}$, all non-prime attributes ($\text{name}$, $\text{phone}$, etc.) depend directly on the primary key $\text{user\_roll}$. There are no transitive dependencies ($\text{user\_roll} \rightarrow A \rightarrow B$).
-  - In $\text{COMPLAINTS}$, attributes like $\text{room}$, $\text{hostel}$, and $\text{priority}$ depend solely on `id`. No transitive dependencies exist. Thus, the design satisfies 3NF.
+  - A relation is in 3NF if for every functional dependency `X → Y`, either `X` is a superkey or `Y` is a prime attribute.
+  - In `USERS`, all non-prime attributes (`name`, `phone`, etc.) depend directly on the primary key `user_roll`. There are no transitive dependencies (`user_roll → A → B`).
+  - In `COMPLAINTS`, attributes like `room`, `hostel`, and `priority` depend solely on `id`. No transitive dependencies exist. Thus, the design satisfies 3NF.
 - **Boyce-Codd Normal Form (BCNF)**:
-  - For every non-trivial functional dependency $X \rightarrow Y$, the determinant $X$ is a superkey.
+  - For every non-trivial functional dependency `X → Y`, the determinant `X` is a superkey.
   - In both relations, the left-hand side of all dependencies is a candidate key. Hence, the relational design satisfies **BCNF**.
 
 ---

@@ -456,71 +456,74 @@ This section details the theoretical database management foundations of the UniH
 For every relation, attributes are classified as either **prime attributes** (members of at least one candidate key) or **non-prime attributes** (not part of any candidate key).
 
 #### Relation: `users`
-* Attributes: $U = \{\text{user\_roll}, \text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
+* **Attributes**: `U = {user_roll, password, name, email, phone, is_admin}`
 * **Super Keys (SK)**: Any superset containing a candidate key. Examples include:
-  * $\{\text{user\_roll}\}$, $\{\text{user\_roll}, \text{name}\}$, $\{\text{email}\}$, $\{\text{email}, \text{phone}\}$, $\{\text{user\_roll}, \text{email}\}$, etc.
+  * `{user_roll}`, `{user_roll, name}`, `{email}`, `{email, phone}`, `{user_roll, email}`, etc.
 * **Candidate Keys (CK)**: Minimal super keys whose proper subsets are not super keys.
-  * $CK_1 = \{\text{user\_roll}\}$
-  * $CK_2 = \{\text{email}\}$ (enforced by unique constraint)
-* **Primary Key (PK)**: Selected minimal identifier: $\underline{\text{user\_roll}}$
-* **Alternate Key**: $\text{email}$
-* **Prime Attributes**: $\{\text{user\_roll}, \text{email}\}$
-* **Non-Prime Attributes**: $\{\text{password}, \text{name}, \text{phone}, \text{is\_admin}\}$
+  * `CK1 = {user_roll}`
+  * `CK2 = {email}` (enforced by unique constraint)
+* **Primary Key (PK)**: Selected minimal identifier: `user_roll`
+* **Alternate Key**: `email`
+* **Prime Attributes**: `{user_roll, email}`
+* **Non-Prime Attributes**: `{password, name, phone, is_admin}`
 
 #### Relation: `complaints`
-* Attributes: $C = \{\text{id}, \text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+* **Attributes**: `C = {id, user_roll, room, hostel, priority, type, sub, info, created, resolved}`
 * **Candidate Key (CK)**: Exactly one minimal key:
-  * $CK_1 = \{\text{id}\}$
-* **Primary Key (PK)**: Selected minimal identifier: $\underline{\text{id}}$
-* **Foreign Key (FK)**: $\text{user\_roll}$ referencing $\text{users}(\text{user\_roll})$
-* **Prime Attributes**: $\{\text{id}\}$
-* **Non-Prime Attributes**: $\{\text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+  * `CK1 = {id}`
+* **Primary Key (PK)**: Selected minimal identifier: `id`
+* **Foreign Key (FK)**: `user_roll` referencing `users(user_roll)`
+* **Prime Attributes**: `{id}`
+* **Non-Prime Attributes**: `{user_roll, room, hostel, priority, type, sub, info, created, resolved}`
 
 ---
 
 ### 2. Functional Dependencies (FDs)
-A functional dependency $\alpha \rightarrow \beta$ states that whenever two tuples agree on attribute set $\alpha$, they must also agree on attribute set $\beta$.
+A functional dependency `α → β` states that whenever two tuples agree on attribute set `α`, they must also agree on attribute set `β`.
 
-#### Full Functional Dependency Set ($F$)
+#### Full Functional Dependency Set (F)
 * **For `users`**:
-  * $FD_1: \text{user\_roll} \rightarrow \{\text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
+  * `FD1: user_roll → {password, name, email, phone, is_admin}`
     *(A student's institutional roll number uniquely identifies their name, password, email, contact phone, and administrative role.)*
-  * $FD_2: \text{email} \rightarrow \{\text{user\_roll}, \text{password}, \text{name}, \text{phone}, \text{is\_admin}\}$
+  * `FD2: email → {user_roll, password, name, phone, is_admin}`
     *(Because institutional email addresses are strictly unique, email also functionally determines all profile attributes.)*
 * **For `complaints`**:
-  * $FD_3: \text{id} \rightarrow \{\text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+  * `FD3: id → {user_roll, room, hostel, priority, type, sub, info, created, resolved}`
     *(Every complaint ticket has an auto-generated 5-character primary key that uniquely determines hostel, room, tags, timestamps, and resolution state.)*
 * **Non-Dependencies**:
-  * $\text{user\_roll} \not\rightarrow \text{id}$ *(A student may lodge multiple complaints over time; thus roll number does not uniquely determine ticket ID.)*
-  * $\text{hostel} \not\rightarrow \text{room}$ *(Multiple rooms exist in each hostel block.)*
-  * $\text{room} \not\rightarrow \text{hostel}$ *(Room 302 exists across multiple independent hostel blocks.)*
+  * `user_roll ↛ id` *(A student may lodge multiple complaints over time; thus roll number does not uniquely determine ticket ID.)*
+  * `hostel ↛ room` *(Multiple rooms exist in each hostel block.)*
+  * `room ↛ hostel` *(Room 302 exists across multiple independent hostel blocks.)*
 
 #### Trivial vs. Non-Trivial FDs
-* An FD $\alpha \rightarrow \beta$ is **trivial** if $\beta \subseteq \alpha$ (e.g., $\{\text{user\_roll}, \text{name}\} \rightarrow \text{name}$).
-* An FD $\alpha \rightarrow \beta$ is **non-trivial** if $\beta \not\subseteq \alpha$ (e.g., $FD_1, FD_2, FD_3$ are strictly non-trivial).
-* An FD is **completely non-trivial** if $\alpha \cap \beta = \emptyset$. All application domain FDs in UniHostel are completely non-trivial.
+* An FD `α → β` is **trivial** if `β ⊆ α` (e.g., `{user_roll, name} → name`).
+* An FD `α → β` is **non-trivial** if `β ⊈ α` (e.g., `FD1, FD2, FD3` are strictly non-trivial).
+* An FD is **completely non-trivial** if `α ∩ β = ∅`. All application domain FDs in UniHostel are completely non-trivial.
 
 ---
 
-### 3. Attribute Closure Algorithm ($X^+$)
-The attribute closure $X^+$ with respect to an FD set $F$ is the set of all attributes functionally determined by $X$. It is computed iteratively:
+### 3. Attribute Closure Algorithm (X⁺)
+The attribute closure `X⁺` with respect to an FD set `F` is the set of all attributes functionally determined by `X`. It is computed iteratively:
 
-$$\text{Initialize } X^{(0)} = X$$
-$$\text{Repeat until convergence: } X^{(i+1)} = X^{(i)} \cup \{\gamma \mid \alpha \rightarrow \beta \in F, \alpha \subseteq X^{(i)}, \gamma \in \beta\}$$
+```
+Initialize X⁽⁰⁾ = X
+Repeat until convergence:
+  X⁽ⁱ⁺¹⁾ = X⁽ⁱ⁾ ∪ { γ | α → β ∈ F, α ⊆ X⁽ⁱ⁾, γ ∈ β }
+```
 
 #### Verification of Candidate Keys
-1. **Testing $\{\text{user\_roll}\}$ on `users`**:
-   * $X^{(0)} = \{\text{user\_roll}\}$
-   * Using $FD_1$: $X^{(1)} = \{\text{user\_roll}, \text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
-   * Since $X^{(1)} = U$ (all attributes of `users`), $\{\text{user\_roll}\}$ is a valid Super Key. Because it is a single attribute, no proper subset can be a key; therefore, it is a **minimal Candidate Key**.
-2. **Testing $\{\text{email}\}$ on `users`**:
-   * $X^{(0)} = \{\text{email}\}$
-   * Using $FD_2$: $X^{(1)} = \{\text{email}, \text{user\_roll}, \text{password}, \text{name}, \text{phone}, \text{is\_admin}\}$
-   * Since $X^{(1)} = U$, $\{\text{email}\}$ is an alternate **Candidate Key**.
-3. **Testing $\{\text{id}\}$ on `complaints`**:
-   * $X^{(0)} = \{\text{id}\}$
-   * Using $FD_3$: $X^{(1)} = \{\text{id}, \text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
-   * Since $X^{(1)} = C$, $\{\text{id}\}$ is a minimal **Candidate Key**.
+1. **Testing `{user_roll}` on `users`**:
+   * `X⁽⁰⁾ = {user_roll}`
+   * Using `FD1`: `X⁽¹⁾ = {user_roll, password, name, email, phone, is_admin}`
+   * Since `X⁽¹⁾ = U` (all attributes of `users`), `{user_roll}` is a valid Super Key. Because it is a single attribute, no proper subset can be a key; therefore, it is a **minimal Candidate Key**.
+2. **Testing `{email}` on `users`**:
+   * `X⁽⁰⁾ = {email}`
+   * Using `FD2`: `X⁽¹⁾ = {email, user_roll, password, name, phone, is_admin}`
+   * Since `X⁽¹⁾ = U`, `{email}` is an alternate **Candidate Key**.
+3. **Testing `{id}` on `complaints`**:
+   * `X⁽⁰⁾ = {id}`
+   * Using `FD3`: `X⁽¹⁾ = {id, user_roll, room, hostel, priority, type, sub, info, created, resolved}`
+   * Since `X⁽¹⁾ = C`, `{id}` is a minimal **Candidate Key**.
 
 ---
 
@@ -559,37 +562,37 @@ Normalization is the systematic process of organizing data to eliminate modifica
   * In classic relational theory, multivalued attributes (like multiple problem categories or sub-issue tags) violate strict scalar atomicity if stored as comma-delimited strings.
   * In the UniHostel schema, PostgreSQL's native `TEXT[]` collection type provides type-safe, first-class arrays with indexable elements.
   * Each record in `complaints` has a primary key `id` ensuring unique tuple identity. 
-  * If classical scalar decomposition is required, multi-valued tags decompose cleanly into child relations $\text{complaint\_categories}(\underline{\text{complaint\_id}, \text{category}})$ and $\text{complaint\_subissues}(\underline{\text{complaint\_id}, \text{sub\_issue}})$.
+  * If classical scalar decomposition is required, multi-valued tags decompose cleanly into child relations `complaint_categories(complaint_id, category)` and `complaint_subissues(complaint_id, sub_issue)`.
 
 #### Second Normal Form (2NF)
 * **Definition**: A relation is in 2NF if it is in 1NF and **no non-prime attribute is partially dependent on any candidate key**. A partial dependency exists if a proper subset of a composite candidate key determines a non-prime attribute:
-  $$\exists X \subset CK \text{ such that } X \rightarrow A \text{ where } A \notin CK$$
+  * Formally: There does NOT exist any `X ⊂ CK` such that `X → A` where `A ∉ CK`.
 * **Proof of 2NF**:
-  * For `users`, Candidate Keys are $\{\text{user\_roll}\}$ and $\{\text{email}\}$. Both keys are single attributes (cardinality 1). No proper non-empty subset of a single attribute exists.
-  * For `complaints`, the sole Candidate Key is $\{\text{id}\}$. This is also a single-attribute key.
+  * For `users`, Candidate Keys are `{user_roll}` and `{email}`. Both keys are single attributes (cardinality 1). No proper non-empty subset of a single attribute exists.
+  * For `complaints`, the sole Candidate Key is `{id}`. This is also a single-attribute key.
   * **Theorem**: Any relation in 1NF whose candidate keys are all simple (non-composite) is inherently in **Second Normal Form**.
   * Therefore, both `users` and `complaints` strictly satisfy 2NF with zero partial dependencies.
 
 #### Third Normal Form (3NF)
-* **Definition**: A relation is in 3NF if it is in 2NF and for every non-trivial functional dependency $X \rightarrow Y$, at least one of the following conditions holds:
-  1. $X$ is a **Super Key** of the relation, OR
-  2. $Y$ is a **Prime Attribute** (member of some candidate key).
+* **Definition**: A relation is in 3NF if it is in 2NF and for every non-trivial functional dependency `X → Y`, at least one of the following conditions holds:
+  1. `X` is a **Super Key** of the relation, OR
+  2. `Y` is a **Prime Attribute** (member of some candidate key).
   *(Equivalently: No non-prime attribute is transitively dependent on a candidate key.)*
 * **Proof of 3NF**:
   * In `users`:
-    * For $FD_1: \text{user\_roll} \rightarrow \{\dots\}$, $X = \{\text{user\_roll}\}$ is a Super Key (Condition 1 holds).
-    * For $FD_2: \text{email} \rightarrow \{\dots\}$, $X = \{\text{email}\}$ is a Super Key (Condition 1 holds).
+    * For `FD1: user_roll → {...}`, `X = {user_roll}` is a Super Key (Condition 1 holds).
+    * For `FD2: email → {...}`, `X = {email}` is a Super Key (Condition 1 holds).
   * In `complaints`:
-    * For $FD_3: \text{id} \rightarrow \{\dots\}$, $X = \{\text{id}\}$ is a Super Key (Condition 1 holds).
-  * Neither relation contains transitive dependencies (e.g., $CK \rightarrow A$ and $A \rightarrow B$ where $A, B$ are non-prime).
+    * For `FD3: id → {...}`, `X = {id}` is a Super Key (Condition 1 holds).
+  * Neither relation contains transitive dependencies (e.g., `CK → A` and `A → B` where `A, B` are non-prime).
   * Therefore, both relations strictly satisfy **Third Normal Form**.
 
 #### Boyce-Codd Normal Form (BCNF)
-* **Definition**: A relation is in BCNF if and only if for every non-trivial functional dependency $X \rightarrow Y$, $X$ is a **Super Key**.
+* **Definition**: A relation is in BCNF if and only if for every non-trivial functional dependency `X → Y`, `X` is a **Super Key**.
   *(BCNF eliminates all anomalies that 3NF might permit when multiple overlapping candidate keys exist.)*
 * **Proof of BCNF**:
-  * In `users`, the determinants of all non-trivial FDs are $\{\text{user\_roll}\}$ and $\{\text{email}\}$. Both are candidate keys, and therefore super keys.
-  * In `complaints`, the sole determinant of all non-trivial FDs is $\{\text{id}\}$, which is a super key.
+  * In `users`, the determinants of all non-trivial FDs are `{user_roll}` and `{email}`. Both are candidate keys, and therefore super keys.
+  * In `complaints`, the sole determinant of all non-trivial FDs is `{id}`, which is a super key.
   * No non-trivial functional dependency exists where the left-hand side is not a super key.
   * **Conclusion**: The schema is strictly in **Boyce-Codd Normal Form (BCNF)**.
 
@@ -598,26 +601,34 @@ Normalization is the systematic process of organizing data to eliminate modifica
 ### 5. Decomposition Properties
 
 #### Lossless-Join Decomposition (Non-Additive Join)
-A decomposition of relation $R$ into $R_1$ and $R_2$ is **lossless** with respect to FD set $F$ if and only if:
+A decomposition of relation `R` into `R1` and `R2` is **lossless** with respect to FD set `F` if and only if:
 
-$$R_1 \bowtie R_2 = R$$
+```
+R1 ⋈ R2 = R
+```
 
 By relational theory theorem, this holds if and only if:
-$$(R_1 \cap R_2) \rightarrow R_1 \quad \text{OR} \quad (R_1 \cap R_2) \rightarrow R_2$$
+```
+(R1 ∩ R2) → R1    OR    (R1 ∩ R2) → R2
+```
 
 * **Application Verification**:
-  * Let universal grievance state be represented as $R(\text{id}, \text{user\_roll}, \text{name}, \text{email}, \text{phone}, \text{room}, \text{hostel}, \text{priority}, \dots)$.
-  * Decomposed into $R_1 = \text{users}$ and $R_2 = \text{complaints}$.
+  * Let universal grievance state be represented as `R(id, user_roll, name, email, phone, room, hostel, priority, ...)`.
+  * Decomposed into `R1 = users` and `R2 = complaints`.
   * The intersection is:
-    $$R_1 \cap R_2 = \{\text{user\_roll}\}$$
-  * Since $\text{user\_roll} \rightarrow R_1$ holds in $\text{users}$ ($\text{user\_roll}$ is the primary key of `users`), the intersection attribute is a super key of $R_1$.
+    ```
+    R1 ∩ R2 = {user_roll}
+    ```
+  * Since `user_roll → R1` holds in `users` (`user_roll` is the primary key of `users`), the intersection attribute is a super key of `R1`.
   * **Conclusion**: The decomposition between `users` and `complaints` is guaranteed to be **strictly lossless**. No spurious tuples can be generated during relational joins (`INNER JOIN users ON complaints.user_roll = users.user_roll`).
 
 #### Dependency Preservation
 * A decomposition is dependency-preserving if the union of projected dependencies on individual tables covers all original dependencies:
-  $$(F_1 \cup F_2 \cup \dots \cup F_n)^+ = F^+$$
-* All dependencies governing users ($FD_1, FD_2$) can be checked solely within the `users` table.
-* All dependencies governing complaints ($FD_3$) can be checked solely within the `complaints` table.
+  ```
+  (F1 ∪ F2 ∪ ... ∪ Fn)⁺ = F⁺
+  ```
+* All dependencies governing users (`FD1`, `FD2`) can be checked solely within the `users` table.
+* All dependencies governing complaints (`FD3`) can be checked solely within the `complaints` table.
 * No cross-table functional dependency exists that requires joining relations to verify. Hence, the decomposition is **strictly dependency-preserving**.
 
 ---
