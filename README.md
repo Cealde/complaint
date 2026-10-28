@@ -448,6 +448,204 @@ erDiagram
 
 ---
 
+## Relational Database Theory & Formal Design (2nd Year DBMS Concepts)
+
+This section details the theoretical database management foundations of the UniHostel Complaint Portal, covering relational key classification, functional dependencies, attribute closure algorithms, formal normalization up to BCNF, decomposition guarantees, relational integrity constraints, and ACID transaction mechanics.
+
+### 1. Relational Keys and Classification
+For every relation, attributes are classified as either **prime attributes** (members of at least one candidate key) or **non-prime attributes** (not part of any candidate key).
+
+#### Relation: `users`
+* Attributes: $U = \{\text{user\_roll}, \text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
+* **Super Keys (SK)**: Any superset containing a candidate key. Examples include:
+  * $\{\text{user\_roll}\}$, $\{\text{user\_roll}, \text{name}\}$, $\{\text{email}\}$, $\{\text{email}, \text{phone}\}$, $\{\text{user\_roll}, \text{email}\}$, etc.
+* **Candidate Keys (CK)**: Minimal super keys whose proper subsets are not super keys.
+  * $CK_1 = \{\text{user\_roll}\}$
+  * $CK_2 = \{\text{email}\}$ (enforced by unique constraint)
+* **Primary Key (PK)**: Selected minimal identifier: $\underline{\text{user\_roll}}$
+* **Alternate Key**: $\text{email}$
+* **Prime Attributes**: $\{\text{user\_roll}, \text{email}\}$
+* **Non-Prime Attributes**: $\{\text{password}, \text{name}, \text{phone}, \text{is\_admin}\}$
+
+#### Relation: `complaints`
+* Attributes: $C = \{\text{id}, \text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+* **Candidate Key (CK)**: Exactly one minimal key:
+  * $CK_1 = \{\text{id}\}$
+* **Primary Key (PK)**: Selected minimal identifier: $\underline{\text{id}}$
+* **Foreign Key (FK)**: $\text{user\_roll}$ referencing $\text{users}(\text{user\_roll})$
+* **Prime Attributes**: $\{\text{id}\}$
+* **Non-Prime Attributes**: $\{\text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+
+---
+
+### 2. Functional Dependencies (FDs)
+A functional dependency $\alpha \rightarrow \beta$ states that whenever two tuples agree on attribute set $\alpha$, they must also agree on attribute set $\beta$.
+
+#### Full Functional Dependency Set ($F$)
+* **For `users`**:
+  * $FD_1: \text{user\_roll} \rightarrow \{\text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
+    *(A student's institutional roll number uniquely identifies their name, password, email, contact phone, and administrative role.)*
+  * $FD_2: \text{email} \rightarrow \{\text{user\_roll}, \text{password}, \text{name}, \text{phone}, \text{is\_admin}\}$
+    *(Because institutional email addresses are strictly unique, email also functionally determines all profile attributes.)*
+* **For `complaints`**:
+  * $FD_3: \text{id} \rightarrow \{\text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+    *(Every complaint ticket has an auto-generated 5-character primary key that uniquely determines hostel, room, tags, timestamps, and resolution state.)*
+* **Non-Dependencies**:
+  * $\text{user\_roll} \not\rightarrow \text{id}$ *(A student may lodge multiple complaints over time; thus roll number does not uniquely determine ticket ID.)*
+  * $\text{hostel} \not\rightarrow \text{room}$ *(Multiple rooms exist in each hostel block.)*
+  * $\text{room} \not\rightarrow \text{hostel}$ *(Room 302 exists across multiple independent hostel blocks.)*
+
+#### Trivial vs. Non-Trivial FDs
+* An FD $\alpha \rightarrow \beta$ is **trivial** if $\beta \subseteq \alpha$ (e.g., $\{\text{user\_roll}, \text{name}\} \rightarrow \text{name}$).
+* An FD $\alpha \rightarrow \beta$ is **non-trivial** if $\beta \not\subseteq \alpha$ (e.g., $FD_1, FD_2, FD_3$ are strictly non-trivial).
+* An FD is **completely non-trivial** if $\alpha \cap \beta = \emptyset$. All application domain FDs in UniHostel are completely non-trivial.
+
+---
+
+### 3. Attribute Closure Algorithm ($X^+$)
+The attribute closure $X^+$ with respect to an FD set $F$ is the set of all attributes functionally determined by $X$. It is computed iteratively:
+
+$$\text{Initialize } X^{(0)} = X$$
+$$\text{Repeat until convergence: } X^{(i+1)} = X^{(i)} \cup \{\gamma \mid \alpha \rightarrow \beta \in F, \alpha \subseteq X^{(i)}, \gamma \in \beta\}$$
+
+#### Verification of Candidate Keys
+1. **Testing $\{\text{user\_roll}\}$ on `users`**:
+   * $X^{(0)} = \{\text{user\_roll}\}$
+   * Using $FD_1$: $X^{(1)} = \{\text{user\_roll}, \text{password}, \text{name}, \text{email}, \text{phone}, \text{is\_admin}\}$
+   * Since $X^{(1)} = U$ (all attributes of `users`), $\{\text{user\_roll}\}$ is a valid Super Key. Because it is a single attribute, no proper subset can be a key; therefore, it is a **minimal Candidate Key**.
+2. **Testing $\{\text{email}\}$ on `users`**:
+   * $X^{(0)} = \{\text{email}\}$
+   * Using $FD_2$: $X^{(1)} = \{\text{email}, \text{user\_roll}, \text{password}, \text{name}, \text{phone}, \text{is\_admin}\}$
+   * Since $X^{(1)} = U$, $\{\text{email}\}$ is an alternate **Candidate Key**.
+3. **Testing $\{\text{id}\}$ on `complaints`**:
+   * $X^{(0)} = \{\text{id}\}$
+   * Using $FD_3$: $X^{(1)} = \{\text{id}, \text{user\_roll}, \text{room}, \text{hostel}, \text{priority}, \text{type}, \text{sub}, \text{info}, \text{created}, \text{resolved}\}$
+   * Since $X^{(1)} = C$, $\{\text{id}\}$ is a minimal **Candidate Key**.
+
+---
+
+### 4. Normalization Analysis (1NF through BCNF)
+Normalization is the systematic process of organizing data to eliminate modification anomalies (Insertion, Deletion, and Update anomalies) and reduce redundant data storage.
+
+```
++--------------------------------------------------------------------+
+| Unnormalized Data (Repeating groups, multi-valued attributes)      |
++--------------------------------------------------------------------+
+                                  |
+                                  v
++--------------------------------------------------------------------+
+| 1NF (Atomic domain values, distinct tuple identification)          |
++--------------------------------------------------------------------+
+                                  |
+                                  v
++--------------------------------------------------------------------+
+| 2NF (1NF + No partial dependencies on any candidate key)           |
++--------------------------------------------------------------------+
+                                  |
+                                  v
++--------------------------------------------------------------------+
+| 3NF (2NF + No transitive dependencies: X -> Y requires X=SK or Y=Prime) |
++--------------------------------------------------------------------+
+                                  |
+                                  v
++--------------------------------------------------------------------+
+| BCNF (Strict 3NF: For every non-trivial X -> Y, X must be a Super Key)   |
++--------------------------------------------------------------------+
+```
+
+#### First Normal Form (1NF)
+* **Definition**: A relation is in 1NF if and only if the domain of each attribute contains only atomic (indivisible) values, and there are no repeating groups.
+* **Application Analysis**:
+  * In classic relational theory, multivalued attributes (like multiple problem categories or sub-issue tags) violate strict scalar atomicity if stored as comma-delimited strings.
+  * In the UniHostel schema, PostgreSQL's native `TEXT[]` collection type provides type-safe, first-class arrays with indexable elements.
+  * Each record in `complaints` has a primary key `id` ensuring unique tuple identity. 
+  * If classical scalar decomposition is required, multi-valued tags decompose cleanly into child relations $\text{complaint\_categories}(\underline{\text{complaint\_id}, \text{category}})$ and $\text{complaint\_subissues}(\underline{\text{complaint\_id}, \text{sub\_issue}})$.
+
+#### Second Normal Form (2NF)
+* **Definition**: A relation is in 2NF if it is in 1NF and **no non-prime attribute is partially dependent on any candidate key**. A partial dependency exists if a proper subset of a composite candidate key determines a non-prime attribute:
+  $$\exists X \subset CK \text{ such that } X \rightarrow A \text{ where } A \notin CK$$
+* **Proof of 2NF**:
+  * For `users`, Candidate Keys are $\{\text{user\_roll}\}$ and $\{\text{email}\}$. Both keys are single attributes (cardinality 1). No proper non-empty subset of a single attribute exists.
+  * For `complaints`, the sole Candidate Key is $\{\text{id}\}$. This is also a single-attribute key.
+  * **Theorem**: Any relation in 1NF whose candidate keys are all simple (non-composite) is inherently in **Second Normal Form**.
+  * Therefore, both `users` and `complaints` strictly satisfy 2NF with zero partial dependencies.
+
+#### Third Normal Form (3NF)
+* **Definition**: A relation is in 3NF if it is in 2NF and for every non-trivial functional dependency $X \rightarrow Y$, at least one of the following conditions holds:
+  1. $X$ is a **Super Key** of the relation, OR
+  2. $Y$ is a **Prime Attribute** (member of some candidate key).
+  *(Equivalently: No non-prime attribute is transitively dependent on a candidate key.)*
+* **Proof of 3NF**:
+  * In `users`:
+    * For $FD_1: \text{user\_roll} \rightarrow \{\dots\}$, $X = \{\text{user\_roll}\}$ is a Super Key (Condition 1 holds).
+    * For $FD_2: \text{email} \rightarrow \{\dots\}$, $X = \{\text{email}\}$ is a Super Key (Condition 1 holds).
+  * In `complaints`:
+    * For $FD_3: \text{id} \rightarrow \{\dots\}$, $X = \{\text{id}\}$ is a Super Key (Condition 1 holds).
+  * Neither relation contains transitive dependencies (e.g., $CK \rightarrow A$ and $A \rightarrow B$ where $A, B$ are non-prime).
+  * Therefore, both relations strictly satisfy **Third Normal Form**.
+
+#### Boyce-Codd Normal Form (BCNF)
+* **Definition**: A relation is in BCNF if and only if for every non-trivial functional dependency $X \rightarrow Y$, $X$ is a **Super Key**.
+  *(BCNF eliminates all anomalies that 3NF might permit when multiple overlapping candidate keys exist.)*
+* **Proof of BCNF**:
+  * In `users`, the determinants of all non-trivial FDs are $\{\text{user\_roll}\}$ and $\{\text{email}\}$. Both are candidate keys, and therefore super keys.
+  * In `complaints`, the sole determinant of all non-trivial FDs is $\{\text{id}\}$, which is a super key.
+  * No non-trivial functional dependency exists where the left-hand side is not a super key.
+  * **Conclusion**: The schema is strictly in **Boyce-Codd Normal Form (BCNF)**.
+
+---
+
+### 5. Decomposition Properties
+
+#### Lossless-Join Decomposition (Non-Additive Join)
+A decomposition of relation $R$ into $R_1$ and $R_2$ is **lossless** with respect to FD set $F$ if and only if:
+
+$$R_1 \bowtie R_2 = R$$
+
+By relational theory theorem, this holds if and only if:
+$$(R_1 \cap R_2) \rightarrow R_1 \quad \text{OR} \quad (R_1 \cap R_2) \rightarrow R_2$$
+
+* **Application Verification**:
+  * Let universal grievance state be represented as $R(\text{id}, \text{user\_roll}, \text{name}, \text{email}, \text{phone}, \text{room}, \text{hostel}, \text{priority}, \dots)$.
+  * Decomposed into $R_1 = \text{users}$ and $R_2 = \text{complaints}$.
+  * The intersection is:
+    $$R_1 \cap R_2 = \{\text{user\_roll}\}$$
+  * Since $\text{user\_roll} \rightarrow R_1$ holds in $\text{users}$ ($\text{user\_roll}$ is the primary key of `users`), the intersection attribute is a super key of $R_1$.
+  * **Conclusion**: The decomposition between `users` and `complaints` is guaranteed to be **strictly lossless**. No spurious tuples can be generated during relational joins (`INNER JOIN users ON complaints.user_roll = users.user_roll`).
+
+#### Dependency Preservation
+* A decomposition is dependency-preserving if the union of projected dependencies on individual tables covers all original dependencies:
+  $$(F_1 \cup F_2 \cup \dots \cup F_n)^+ = F^+$$
+* All dependencies governing users ($FD_1, FD_2$) can be checked solely within the `users` table.
+* All dependencies governing complaints ($FD_3$) can be checked solely within the `complaints` table.
+* No cross-table functional dependency exists that requires joining relations to verify. Hence, the decomposition is **strictly dependency-preserving**.
+
+---
+
+### 6. Relational Integrity Rules & Constraints
+The database enforces all four core relational model constraints:
+
+| Constraint Type | Implementation in Schema | Relational Purpose |
+| :--- | :--- | :--- |
+| **Domain Constraint** | `room INTEGER CHECK (room > 0 AND room < 1000)`<br>`priority SMALLINT CHECK (priority IN (0, 1, 2))` | Restricts values to legal mathematical domains, preventing negative room numbers or invalid priority ratings. |
+| **Entity Integrity** | `users(user_roll PRIMARY KEY)`<br>`complaints(id PRIMARY KEY)` | Mandates that primary key attributes cannot contain `NULL` and must be strictly unique across all rows. |
+| **Referential Integrity** | `CONSTRAINT fk_complaints_user FOREIGN KEY (user_roll) REFERENCES users(user_roll) ON DELETE CASCADE ON UPDATE CASCADE` | Forbids orphan complaints. If a student record is updated or removed, referential integrity cascades consistently. |
+| **Key / Uniqueness Constraint** | `email VARCHAR(120) UNIQUE NOT NULL` | Guarantees candidate key properties for secondary identifying attributes. |
+
+---
+
+### 7. ACID Transaction Properties
+Database interactions in the application adhere to standard ACID properties:
+
+* **Atomicity**: During complaint submission (`POST /api/complaint`), the insert operation and default ID generation succeed or fail as a single indivisible unit. If database connectivity drops mid-operation, no partial records are written.
+* **Consistency**: All incoming transactions must satisfy foreign key constraints, priority checks (`0, 1, 2`), and primary key uniqueness before transaction commit. Violations result in transaction rollback and HTTP 400/500 client errors.
+* **Isolation**: Concurrent transactions (e.g., multiple students filing complaints simultaneously in Daphne Hostel or administrators resolving tickets) execute in isolation. PostgreSQL uses Multi-Version Concurrency Control (MVCC) to ensure read transactions never block write transactions.
+* **Durability**: Once an administrator clicks `Resolve` and the database responds with HTTP 200, the updated `resolved = true` state is committed to PostgreSQL's Write-Ahead Log (WAL) on disk, ensuring durability even across server reboots.
+
+---
+
+---
+
 ## API Reference
 
 | Method | Endpoint | Description | Request Body | Response |
