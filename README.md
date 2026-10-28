@@ -1,10 +1,10 @@
-# UniHostel Complaint Portal 🏢
+# UniHostel Complaint Portal
 
 A centralized, cloud-backed hostel grievance redressal and maintenance management system built with **Node.js**, **Vanilla JavaScript**, and **PostgreSQL (Supabase)**.
 
 ---
 
-## 🚀 Quick Setup & Installation
+## Quick Setup & Installation
 
 Follow these steps to set up and run the UniHostel Complaint Portal locally.
 
@@ -44,10 +44,26 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 ---
 
 ### 5. Database Setup (Supabase PostgreSQL)
-If setting up a fresh database, run the following SQL statements in your **Supabase SQL Editor**:
+
+In the database, the complaint `id` is a 5-character uppercase alphanumeric string (e.g., `0FP6V`, `1UT28`, `482Y4`, `6Q2PJ`, `7LRL8`, `CX5I9`). To automatically generate unique random IDs on insert without requiring the client or backend to pass an ID manually, run the following SQL statements in your **Supabase SQL Editor**:
 
 ```sql
--- Create users table
+-- 1. Create a function to generate a random 5-character alphanumeric ID (0-9, A-Z)
+CREATE OR REPLACE FUNCTION generate_complaint_id() 
+RETURNS TEXT AS $$
+DECLARE
+    chars TEXT := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    result TEXT := '';
+    i INT;
+BEGIN
+    FOR i IN 1..5 LOOP
+        result := result || substr(chars, floor(random() * length(chars) + 1)::INT, 1);
+    END LOOP;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. Create users table
 CREATE TABLE users (
     user_roll VARCHAR(30) PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
@@ -57,9 +73,9 @@ CREATE TABLE users (
     is_admin BOOLEAN DEFAULT FALSE
 );
 
--- Create complaints table
+-- 3. Create complaints table with auto-generated random ID as DEFAULT
 CREATE TABLE complaints (
-    id VARCHAR(10) PRIMARY KEY,
+    id VARCHAR(10) PRIMARY KEY DEFAULT generate_complaint_id(),
     user_roll VARCHAR(30) NOT NULL,
     room INTEGER NOT NULL CHECK (room > 0 AND room < 1000),
     hostel VARCHAR(50) NOT NULL,
@@ -76,16 +92,38 @@ CREATE TABLE complaints (
         ON UPDATE CASCADE
 );
 
--- Optimization indexes
+-- 4. Create performance indexes
 CREATE INDEX idx_complaints_user_roll ON complaints(user_roll);
 CREATE INDEX idx_complaints_priority_created ON complaints(priority DESC, created DESC);
 CREATE INDEX idx_complaints_resolved ON complaints(resolved);
 
--- Insert sample users
+-- 5. Insert sample users (Students & Administrator)
 INSERT INTO users (user_roll, password, name, phone, email, is_admin) VALUES
 ('BT.24.MCB.C.079', 'pass123', 'Maria Don', '8555979908', 'bt.24.mcb.c.079@avu.students.edu', FALSE),
 ('SC.22.MCE.A.003', 'pass123', 'Amarilla Dillo', '8555526262', 'sc.22.mce.a.003@avu.students.edu', FALSE),
 ('SC.25.CSE.B.001', 'admin', 'John Jarok', '8555139785', 'sc.25.cse.b.001@avu.students.edu', TRUE);
+```
+
+#### How the ID is Auto-Generated Randomly
+* When an insert query is executed (such as from `app/api/complaint/route.js`), the `id` field is **omitted** from the insert payload.
+* PostgreSQL automatically invokes `DEFAULT generate_complaint_id()`, pulling 5 pseudo-random characters from `'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'`.
+* This generates clean, human-readable ticket codes (such as `0FP6V`, `1UT28`, `482Y4`, `6Q2PJ`, `7LRL8`, `CX5I9`) while guaranteeing primary key uniqueness.
+
+```sql
+-- Example insert query demonstrating auto-generation:
+-- Notice 'id' is not specified; PostgreSQL assigns it automatically via the function.
+INSERT INTO complaints (user_roll, room, hostel, priority, info, type, sub, created)
+VALUES (
+    'BT.24.MCB.C.079', 
+    334, 
+    'Flavus Hostel', 
+    2, 
+    'No water supply in floor bathrooms', 
+    ARRAY['Water Issue'], 
+    ARRAY['No Water Supply'], 
+    NOW()
+)
+RETURNING id, user_roll, room, hostel, created;
 ```
 
 ---
@@ -98,7 +136,7 @@ npm run dev
 *(Or alternatively: `node server.js`)*
 
 The server will launch at:
-👉 **`http://localhost:3000`**
+**`http://localhost:3000`**
 
 ---
 
@@ -113,7 +151,201 @@ You can test both student and administrator workflows using the pre-seeded crede
 
 ---
 
-## 📖 Project Overview
+## How Every Backend Interacts with the Database
+
+The backend architecture consists of a Node.js server (`server.js`) that routes API requests to dedicated handler modules under `app/api/`. Each module interacts with PostgreSQL via the `@supabase/supabase-js` client library.
+
+### Client Connection Initialization
+Each backend route uses a singleton connection pattern via `getSupabaseClient()`:
+```javascript
+const { createClient } = require('@supabase/supabase-js');
+
+let supabase = null;
+function getSupabaseClient() {
+    if (!supabase) {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+        if (supabaseUrl && supabaseKey) {
+            supabase = createClient(supabaseUrl, supabaseKey);
+        }
+    }
+    return supabase;
+}
+```
+In `server.js`, DNS resolution is configured using `dns.setDefaultResultOrder('ipv4first')` to optimize connection pooling and prevent handshake timeouts on environments with dormant IPv6 routes.
+
+---
+
+### 1. User Authentication (`app/api/login/route.js`)
+* **Endpoint**: `POST /api/login`
+* **Purpose**: Authenticate user credentials and check administrative privileges.
+* **Incoming Payload**:
+  ```json
+  {
+    "userid": "SC.25.CSE.B.001",
+    "password": "admin"
+  }
+  ```
+* **Database Interaction**:
+  The handler executes a parameterized query against the `users` table:
+  ```javascript
+  const { data, error } = await client
+    .from("users")
+    .select("user_roll, password, name, email, phone, is_admin")
+    .eq("user_roll", userid)
+    .eq("password", password)
+    .single();
+  ```
+* **Operation & Response**:
+  * Validates that both `userid` and `password` match an existing row.
+  * If invalid or not found, responds with HTTP 401 (`Invalid User ID or password`).
+  * If valid, normalizes `is_admin` to a strict boolean (`const isAdmin = Boolean(data.is_admin);`) and returns the profile payload:
+    ```json
+    {
+      "success": true,
+      "user": {
+        "userid": "SC.25.CSE.B.001",
+        "user_roll": "SC.25.CSE.B.001",
+        "name": "John Jarok",
+        "email": "sc.25.cse.b.001@avu.students.edu",
+        "phone": "8555139785",
+        "is_admin": true
+      }
+    }
+    ```
+
+---
+
+### 2. Complaint Registration (`app/api/complaint/route.js`)
+* **Endpoint**: `POST /api/complaint`
+* **Purpose**: Record a new complaint ticket into the database.
+* **Incoming Payload**:
+  ```json
+  {
+    "user_roll": "BT.24.MCB.C.079",
+    "room": 334,
+    "hostel": "Flavus Hostel",
+    "priorityNum": 2,
+    "info": "Water leaking from ceiling pipe",
+    "type": ["Water Issue", "Structural Issue"],
+    "sub": ["Leaking Tap/Pipe", "Ceiling Seepage"],
+    "timestamp": "2026-10-11T15:33:00.341Z"
+  }
+  ```
+* **Database Interaction**:
+  1. Formats `type` and `sub` into proper arrays for PostgreSQL `TEXT[]` compatibility:
+     ```javascript
+     const typeArr = Array.isArray(type) ? type : (type ? type.split(',').map(s => s.trim()) : []);
+     const subArr = Array.isArray(sub) ? sub : (sub ? sub.split(',').map(s => s.trim()) : []);
+     ```
+  2. Inserts the record into the `complaints` table, intentionally omitting `id`:
+     ```javascript
+     const { data, error } = await client
+       .from("complaints")
+       .insert([{ 
+         user_roll, 
+         room, 
+         hostel, 
+         priority: Number(priorityNum), 
+         info: info || '', 
+         type: typeArr,
+         sub: subArr,
+         created: timestamp
+       }])
+       .select();
+     ```
+* **Operation & Response**:
+  * PostgreSQL triggers the column default `generate_complaint_id()`, generating a unique random 5-character ID (such as `0FP6V` or `1UT28`).
+  * `.select()` immediately returns the committed row including the generated `id`, returning HTTP 200 to the client.
+
+---
+
+### 3. Student Personal Complaints Retrieval (`app/api/get/route.js`)
+* **Endpoint**: `POST /api/get`
+* **Purpose**: Fetch all complaints filed by the currently authenticated student for display in `/mylist`.
+* **Incoming Payload**:
+  ```json
+  {
+    "user_roll": "BT.24.MCB.C.079"
+  }
+  ```
+* **Database Interaction**:
+  The handler queries `complaints` filtered by `user_roll`:
+  ```javascript
+  const { data, error } = await client
+    .from("complaints")
+    .select("id, room, hostel, type, sub, priority, info, created, resolved")
+    .eq("user_roll", user_roll)
+    .order("created", { ascending: false });
+  ```
+* **Operation & Response**:
+  * Scans the `idx_complaints_user_roll` index to return all complaints filed by that student.
+  * Orders rows by timestamp in descending order (`created DESC`).
+  * Returns `{ success: true, complaints: data || [] }`, enabling students to monitor the status (`Pending` vs `Resolved`) and details of their tickets.
+
+---
+
+### 4. Administrative Complaints Overview & Resolution (`app/api/admin/route.js`)
+This route handles administrative oversight, joining data across tables and updating resolution state.
+
+#### A. Fetching All Complaints with Student Contact Data (GET /api/admin)
+* **Purpose**: Display all university complaints on the admin console, enriched with student details.
+* **Database Interaction**:
+  The handler executes parallel queries across both tables:
+  ```javascript
+  const [complaintsRes, usersRes] = await Promise.all([
+    client.from("complaints").select("*"),
+    client.from("users").select("user_roll, name, email, phone")
+  ]);
+  ```
+* **Relational Joining in Backend**:
+  Builds a lookup hash map of users by `user_roll` and joins the two data sets:
+  ```javascript
+  const userMap = {};
+  usersRes.data.forEach(u => {
+    userMap[u.user_roll] = u;
+  });
+
+  const complaints = complaintsRes.data.map(item => {
+    const u = userMap[item.user_roll] || {};
+    return {
+      ...item,
+      name: u.name || 'Unknown',
+      email: u.email || '-',
+      phone: u.phone || '-'
+    };
+  });
+  ```
+* **Result**:
+  Every complaint is decorated with student contact info (`name`, `email`, `phone`), eliminating the need for administrators to consult separate student record directories.
+
+#### B. Resolving a Complaint (POST /api/admin)
+* **Purpose**: Mark an issue as resolved in the database upon administrative confirmation.
+* **Incoming Payload**:
+  ```json
+  {
+    "action": "resolve",
+    "id": "VNZZE",
+    "resolved": true
+  }
+  ```
+* **Database Interaction**:
+  Executes an update query targeting the complaint by its primary key:
+  ```javascript
+  const { data, error } = await client
+    .from("complaints")
+    .update({ resolved: true })
+    .eq("id", id)
+    .select();
+  ```
+* **Operation & Response**:
+  * Updates the `resolved` boolean column to `true`.
+  * Returns HTTP 200 with the updated row.
+  * On the frontend, the ticket is dynamically moved from the "Unresolved" queue to the "Resolved" queue and live counter badges update instantly.
+
+---
+
+## Project Overview
 
 ### Problem Statement
 In university residential hostels, maintenance and infrastructure grievances (plumbing leaks, electrical faults, broken furniture, structural damage) are traditionally recorded using physical paper registers or verbal reports. This leads to:
@@ -127,32 +359,32 @@ The **UniHostel Complaint Portal** digitizes the entire grievance lifecycle into
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-### 👤 Role-Based Authentication & Navigation
+### Role-Based Authentication & Navigation
 * **Institutional Roll Authentication**: Students and administrators sign in using their university roll number and password.
 * **Role-Aware Header**: Administrators dynamically receive an **Admin Panel** button and topbar link, while non-admins only see student options.
 * **Route Protection**: Direct unauthorized navigation to `/admin` redirects non-admins back to the home page.
 
-### 🏛️ Interactive Campus Hostel Dashboard (`/`)
+### Interactive Campus Hostel Dashboard (`/`)
 * 3D card layout featuring 8 residential hostels:
   * **Flavus**, **Daphne**, **Hecate**, **Lares**, **Oreads**, **Medea**, **Istra**, and **Creon**.
 * Personalized user greeting and floating action dock.
 
-### 📝 Taxonomical Complaint Registration (`/complaint`)
+### Taxonomical Complaint Registration (`/complaint`)
 * **3 Severity Tiers**: *Standard (0)*, *Priority (1)*, *Emergency (2)*.
 * **10 Incident Categories**: Water, Electrical Appliance, Wiring, Paint, Furniture/Itinerary, Doors/Windows, Bathroom, Structural, Bed/Mattress, Other.
 * **Dynamic Sub-Issue Selectors**: Selecting a category dynamically generates relevant sub-issue cards with custom SVG icons (supporting dozens of specific issues).
 * **Additional Notes**: Free-form text area for access notes and damage descriptions.
 * **Ticket Receipt (`/done`)**: Generates an alphanumeric complaint receipt (e.g. `#VNZZE`) and posts asynchronously to the database.
 
-### 📋 Student Complaint Tracking (`/mylist`)
+### Student Complaint Tracking (`/mylist`)
 * View all personal complaints submitted by the authenticated user.
 * Color-coded status badges: `Pending`, `In Progress`, `Resolved`.
 * Color-coded priority badges: `Standard`, `Priority`, `Emergency`.
 * **"Show More (+X)" Button**: Intelligently collapses long arrays of sub-issues and notes into a clean badge, with an instant toggle to expand all details inline.
 
-### 🛡️ Administrative Console (`/admin`)
+### Administrative Console (`/admin`)
 * **Clean Header**: Features only the centered UniHostel logo and portal title, with a quick back button returning home.
 * **Joined Student Information**: Automatically joins the `users` and `complaints` tables by `user_roll` to display student **Name**, **Roll Number**, **Phone** (with `tel:` link), and **Email** (with `mailto:` link).
 * **Multi-Tier Severity Sorting**:
@@ -160,14 +392,14 @@ The **UniHostel Complaint Portal** digitizes the entire grievance lifecycle into
 * **Partitioned Switch Tabs**:
   * **Unresolved Complaints**: Default view showing active issues with a live count badge.
   * **Resolved Complaints**: Switch view showing all closed issues sorted purely by publication date.
-* **One-Click Resolution (`✓ Resolve`)**:
+* **One-Click Resolution (`Resolve`)**:
   * Clicking resolve updates the PostgreSQL database (`resolved = true`).
   * Immediately removes the ticket from the Unresolved queue and transfers it to the Resolved queue.
   * Displays a confirmation toast notification.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technologies Used | Description |
 | :--- | :--- | :--- |
@@ -179,7 +411,7 @@ The **UniHostel Complaint Portal** digitizes the entire grievance lifecycle into
 
 ---
 
-## 🗄️ Database Schema & Architecture
+## Database Schema & Architecture
 
 ### Entity-Relationship Diagram (ERD)
 
@@ -216,7 +448,7 @@ erDiagram
 
 ---
 
-## 🔌 API Reference
+## API Reference
 
 | Method | Endpoint | Description | Request Body | Response |
 | :--- | :--- | :--- | :--- | :--- |
@@ -228,7 +460,7 @@ erDiagram
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 attFol/
@@ -283,7 +515,7 @@ attFol/
 
 ---
 
-## 📝 Academic Context
+## Academic Context
 * **Course**: 23CSE202 Database Management Systems
 * **Department**: Department of Computer Science and Engineering
 * **Institution**: Amrita School of Computing, Amrita Vishwa Vidyapeetham, Amritapuri Campus
@@ -291,5 +523,5 @@ attFol/
 
 ---
 
-## 📄 License
+## License
 This project is developed for educational and institutional demonstration purposes. All rights reserved.
