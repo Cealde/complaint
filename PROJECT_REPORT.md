@@ -191,19 +191,19 @@ erDiagram
     USERS ||--o{ COMPLAINTS : submits
     
     USERS {
-        VARCHAR user_roll PK "University Roll Number (e.g. SC.25.CSE.B.001)"
-        VARCHAR password "Hashed / Plain Authentication String"
-        VARCHAR name "Student Full Legal Name"
-        VARCHAR email "Institutional Email Address"
-        VARCHAR phone "10-Digit Contact Number"
+        TEXT user_roll PK "University Roll Number (e.g. SC.25.CSE.B.001)"
+        TEXT password "Hashed / Plain Authentication String"
+        TEXT name "Student Full Legal Name"
+        TEXT email "Institutional Email Address (Generated from user_roll)"
+        TEXT phone "10-Digit Contact Number"
         BOOLEAN is_admin "Administrative Privilege Flag"
     }
 
     COMPLAINTS {
-        VARCHAR id PK "Unique 5-Character Alphanumeric Identifier"
-        VARCHAR user_roll FK "Reference to USERS.user_roll"
+        TEXT id PK "Unique 5-Character Alphanumeric Identifier"
+        TEXT user_roll FK "Reference to USERS.user_roll"
         INTEGER room "Room Number within Hostel"
-        VARCHAR hostel "Name of Residential Hostel"
+        TEXT hostel "Name of Residential Hostel"
         SMALLINT priority "0: Standard, 1: Priority, 2: Emergency"
         TEXT_ARRAY type "Categorical Issue Types"
         TEXT_ARRAY sub "Granular Specific Issue Tags"
@@ -279,25 +279,57 @@ For the implementation of the UniHostel Complaint Portal, **PostgreSQL (via Supa
 
 ```sql
 -- =======================================================
--- 1. Create USERS Table
+-- 1. Create Complaint ID Generator Function (PL/pgSQL)
 -- =======================================================
+CREATE OR REPLACE FUNCTION generate_complaint_id() 
+RETURNS TEXT AS $$
+DECLARE
+    chars TEXT := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    result TEXT := '';
+    i INT;
+BEGIN
+    FOR i IN 1..5 LOOP
+        result := result || substr(chars, floor(random() * length(chars) + 1)::INT, 1);
+    END LOOP;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =======================================================
+-- 2. Create USERS Table with Auto-Generated Email
+-- =======================================================
+-- Email is generated automatically by PostgreSQL from user_roll:
 CREATE TABLE users (
-    user_roll VARCHAR(30) PRIMARY KEY,
-    password VARCHAR(255) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(120) UNIQUE NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    user_roll TEXT PRIMARY KEY,
+    password TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT GENERATED ALWAYS AS (LOWER(user_roll) || '@avu.students.edu') STORED UNIQUE,
+    phone TEXT NOT NULL,
     is_admin BOOLEAN DEFAULT FALSE
 );
 
+-- Alternative procedural trigger approach for email generation:
+CREATE OR REPLACE FUNCTION generate_user_email()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.email := LOWER(NEW.user_roll) || '@avu.students.edu';
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_generate_user_email
+BEFORE INSERT OR UPDATE OF user_roll ON users
+FOR EACH ROW
+EXECUTE FUNCTION generate_user_email();
+
 -- =======================================================
--- 2. Create COMPLAINTS Table
+-- 3. Create COMPLAINTS Table with Auto-Generated Random ID
 -- =======================================================
 CREATE TABLE complaints (
-    id VARCHAR(10) PRIMARY KEY,
-    user_roll VARCHAR(30) NOT NULL,
+    id TEXT PRIMARY KEY DEFAULT generate_complaint_id(),
+    user_roll TEXT NOT NULL,
     room INTEGER NOT NULL CHECK (room > 0 AND room < 1000),
-    hostel VARCHAR(50) NOT NULL,
+    hostel TEXT NOT NULL,
     priority SMALLINT NOT NULL CHECK (priority IN (0, 1, 2)),
     info TEXT DEFAULT '',
     type TEXT[] NOT NULL DEFAULT '{}',
@@ -312,7 +344,7 @@ CREATE TABLE complaints (
 );
 
 -- =======================================================
--- 3. Create Optimization Indexes
+-- 4. Create Optimization Indexes
 -- =======================================================
 CREATE INDEX idx_complaints_user_roll ON complaints(user_roll);
 CREATE INDEX idx_complaints_priority_created ON complaints(priority DESC, created DESC);
@@ -325,10 +357,11 @@ CREATE INDEX idx_complaints_resolved ON complaints(resolved);
 
 ```sql
 -- Inserting Sample Registered Students & Administrators
-INSERT INTO users (user_roll, password, name, phone, email, is_admin) VALUES
-('BT.24.MCB.C.079', 'pass123', 'Maria Don', '8555979908', 'bt.24.mcb.c.079@avu.students.edu', FALSE),
-('SC.22.MCE.A.003', 'pass123', 'Amarilla Dillo', '8555526262', 'sc.22.mce.a.003@avu.students.edu', FALSE),
-('SC.25.CSE.B.001', 'admin', 'John Jarok', '8555139785', 'sc.25.cse.b.001@avu.students.edu', TRUE);
+-- Note: 'email' is omitted from the INSERT list as PostgreSQL generates it automatically
+INSERT INTO users (user_roll, password, name, phone, is_admin) VALUES
+('BT.24.MCB.C.079', 'pass123', 'Maria Don', '8555979908', FALSE),
+('SC.22.MCE.A.003', 'pass123', 'Amarilla Dillo', '8555526262', FALSE),
+('SC.25.CSE.B.001', 'admin', 'John Jarok', '8555139785', TRUE);
 
 -- Inserting Sample Hostel Complaints
 INSERT INTO complaints (id, user_roll, room, hostel, priority, info, type, sub, created, resolved) VALUES

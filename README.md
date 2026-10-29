@@ -45,7 +45,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 
 ### 5. Database Setup (Supabase PostgreSQL)
 
-In the database, the complaint `id` is a 5-character uppercase alphanumeric string (e.g., `0FP6V`, `1UT28`, `482Y4`, `6Q2PJ`, `7LRL8`, `CX5I9`). To automatically generate unique random IDs on insert without requiring the client or backend to pass an ID manually, run the following SQL statements in your **Supabase SQL Editor**:
+In the database, the complaint `id` is a 5-character uppercase alphanumeric string (e.g., `0FP6V`, `1UT28`, `482Y4`, `6Q2PJ`, `7LRL8`, `CX5I9`), and student `email` addresses are auto-generated from their institutional roll numbers (`LOWER(user_roll) || '@avu.students.edu'`). To automatically generate unique random IDs and student emails on insert without requiring the client or backend to pass them manually, run the following SQL statements in your **Supabase SQL Editor**:
 
 ```sql
 -- 1. Create a function to generate a random 5-character alphanumeric ID (0-9, A-Z)
@@ -63,22 +63,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. Create users table
+-- 2. Create users table with auto-generated email from user_roll
 CREATE TABLE users (
-    user_roll VARCHAR(30) PRIMARY KEY,
-    password VARCHAR(255) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(120) UNIQUE NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    user_roll TEXT PRIMARY KEY,
+    password TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT GENERATED ALWAYS AS (LOWER(user_roll) || '@avu.students.edu') STORED UNIQUE,
+    phone TEXT NOT NULL,
     is_admin BOOLEAN DEFAULT FALSE
 );
 
 -- 3. Create complaints table with auto-generated random ID as DEFAULT
 CREATE TABLE complaints (
-    id VARCHAR(10) PRIMARY KEY DEFAULT generate_complaint_id(),
-    user_roll VARCHAR(30) NOT NULL,
+    id TEXT PRIMARY KEY DEFAULT generate_complaint_id(),
+    user_roll TEXT NOT NULL,
     room INTEGER NOT NULL CHECK (room > 0 AND room < 1000),
-    hostel VARCHAR(50) NOT NULL,
+    hostel TEXT NOT NULL,
     priority SMALLINT NOT NULL CHECK (priority IN (0, 1, 2)),
     info TEXT DEFAULT '',
     type TEXT[] NOT NULL DEFAULT '{}',
@@ -98,19 +98,22 @@ CREATE INDEX idx_complaints_priority_created ON complaints(priority DESC, create
 CREATE INDEX idx_complaints_resolved ON complaints(resolved);
 
 -- 5. Insert sample users (Students & Administrator)
-INSERT INTO users (user_roll, password, name, phone, email, is_admin) VALUES
-('BT.24.MCB.C.079', 'pass123', 'Maria Don', '8555979908', 'bt.24.mcb.c.079@avu.students.edu', FALSE),
-('SC.22.MCE.A.003', 'pass123', 'Amarilla Dillo', '8555526262', 'sc.22.mce.a.003@avu.students.edu', FALSE),
-('SC.25.CSE.B.001', 'admin', 'John Jarok', '8555139785', 'sc.25.cse.b.001@avu.students.edu', TRUE);
+-- Notice 'email' is omitted from the INSERT statement; PostgreSQL generates it automatically from user_roll!
+INSERT INTO users (user_roll, password, name, phone, is_admin) VALUES
+('BT.24.MCB.C.079', 'pass123', 'Maria Don', '8555979908', FALSE),
+('SC.22.MCE.A.003', 'pass123', 'Amarilla Dillo', '8555526262', FALSE),
+('SC.25.CSE.B.001', 'admin', 'John Jarok', '8555139785', TRUE);
 ```
 
-#### How the ID is Auto-Generated Randomly
+#### How the Complaint ID and Email are Auto-Generated
+
+##### 1. Complaint ID Auto-Generation (Random 5-Character Code)
 * When an insert query is executed (such as from `app/api/complaint/route.js`), the `id` field is **omitted** from the insert payload.
 * PostgreSQL automatically invokes `DEFAULT generate_complaint_id()`, pulling 5 pseudo-random characters from `'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'`.
 * This generates clean, human-readable ticket codes (such as `0FP6V`, `1UT28`, `482Y4`, `6Q2PJ`, `7LRL8`, `CX5I9`) while guaranteeing primary key uniqueness.
 
 ```sql
--- Example insert query demonstrating auto-generation:
+-- Example complaint insert demonstrating ID auto-generation:
 -- Notice 'id' is not specified; PostgreSQL assigns it automatically via the function.
 INSERT INTO complaints (user_roll, room, hostel, priority, info, type, sub, created)
 VALUES (
@@ -123,6 +126,47 @@ VALUES (
     ARRAY['No Water Supply'], 
     NOW()
 )
+RETURNING id, user_roll, room, hostel, created;
+```
+
+##### 2. Student Email Auto-Generation from Roll Number
+* Student institutional emails are strictly derived from their university roll number in lowercase format:
+  `email = LOWER(user_roll) || '@avu.students.edu'`
+* In PostgreSQL, this can be implemented using either a **Generated Column** or a **PL/pgSQL Trigger**:
+
+**Approach A: Native Generated Column (Recommended)**
+```sql
+-- Directly within CREATE TABLE users:
+email TEXT GENERATED ALWAYS AS (LOWER(user_roll) || '@avu.students.edu') STORED UNIQUE
+```
+PostgreSQL computes the email expression whenever a record is created or `user_roll` is updated, persisting the value physically on disk (`STORED`) with a `UNIQUE` index.
+
+**Approach B: PL/pgSQL Trigger Alternative**
+```sql
+CREATE OR REPLACE FUNCTION generate_user_email()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.email := LOWER(NEW.user_roll) || '@avu.students.edu';
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_generate_user_email
+BEFORE INSERT OR UPDATE OF user_roll ON users
+FOR EACH ROW
+EXECUTE FUNCTION generate_user_email();
+```
+
+* **DBMS Theoretical Significance**:
+  Auto-generating `email` enforces the functional dependency `user_roll → email` at both the relational schema and storage layers. User creation queries only need to supply `user_roll`, preventing typo discrepancies and maintaining strict domain integrity.
+
+```sql
+-- Example user insert demonstrating email auto-generation:
+-- Notice 'email' is omitted; PostgreSQL derives it automatically as 'bt.24.mcb.c.079@avu.students.edu'.
+INSERT INTO users (user_roll, password, name, phone, is_admin)
+VALUES ('BT.24.MCB.C.079', 'pass123', 'Maria Don', '8555979908', FALSE)
+RETURNING user_roll, name, email;
+```
 RETURNING id, user_roll, room, hostel, created;
 ```
 
@@ -420,19 +464,19 @@ erDiagram
     USERS ||--o{ COMPLAINTS : submits
     
     USERS {
-        VARCHAR user_roll PK "College Roll Number"
-        VARCHAR password "Authentication Password"
-        VARCHAR name "Student Full Name"
-        VARCHAR email "Student Email"
-        VARCHAR phone "Contact Phone Number"
+        TEXT user_roll PK "College Roll Number"
+        TEXT password "Authentication Password"
+        TEXT name "Student Full Name"
+        TEXT email "Student Email (Generated from user_roll)"
+        TEXT phone "Contact Phone Number"
         BOOLEAN is_admin "Admin Privilege Flag"
     }
 
     COMPLAINTS {
-        VARCHAR id PK "Unique 5-Character ID"
-        VARCHAR user_roll FK "References USERS.user_roll"
+        TEXT id PK "Unique 5-Character ID"
+        TEXT user_roll FK "References USERS.user_roll"
         INTEGER room "Room Number"
-        VARCHAR hostel "Hostel Name"
+        TEXT hostel "Hostel Name"
         SMALLINT priority "0: Standard, 1: Priority, 2: Emergency"
         TEXT_ARRAY type "Selected Categories"
         TEXT_ARRAY sub "Selected Sub-Issues"
@@ -641,7 +685,7 @@ The database enforces all four core relational model constraints:
 | **Domain Constraint** | `room INTEGER CHECK (room > 0 AND room < 1000)`<br>`priority SMALLINT CHECK (priority IN (0, 1, 2))` | Restricts values to legal mathematical domains, preventing negative room numbers or invalid priority ratings. |
 | **Entity Integrity** | `users(user_roll PRIMARY KEY)`<br>`complaints(id PRIMARY KEY)` | Mandates that primary key attributes cannot contain `NULL` and must be strictly unique across all rows. |
 | **Referential Integrity** | `CONSTRAINT fk_complaints_user FOREIGN KEY (user_roll) REFERENCES users(user_roll) ON DELETE CASCADE ON UPDATE CASCADE` | Forbids orphan complaints. If a student record is updated or removed, referential integrity cascades consistently. |
-| **Key / Uniqueness Constraint** | `email VARCHAR(120) UNIQUE NOT NULL` | Guarantees candidate key properties for secondary identifying attributes. |
+| **Key / Uniqueness Constraint** | `email TEXT GENERATED ALWAYS AS (LOWER(user_roll) \|\| '@avu.students.edu') STORED UNIQUE` | Guarantees candidate key uniqueness while deterministically enforcing `user_roll → email`. |
 
 ---
 
